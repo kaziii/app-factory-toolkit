@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "assets": [
+    { "file": "brand-lockup.svg", "sha256": "8ef63c76295e97355aee9f23a6cda8ce006c72a71ef35ddb713266a1e3cc7564", "width": 120, "height": 32, "render": "120x32 contain" },
+    { "file": "user-avatar.png", "sha256": "7eda28493ca4067a4e265493449ddd020cdca7640a381f1a00c7f10a9d738fe2", "width": 96, "height": 96, "render": "32x32 or 48x48 circular cover" },
+    { "file": "hr-application-logo.png", "sha256": "2dc2140b3d0e8162a89946878d319d4970c1f6bc55bed86c2f44891d2ee5604b", "width": 648, "height": 628, "render": "48x48 identity or 40x40 switcher contain" },
+    { "file": "application-finance-management.png", "sha256": "90bbd09f7be6879dccaddf471c268ed52323a68a1d203fe11eb4b221c7722285", "width": 124, "height": 124, "render": "40x40 contain" },
+    { "file": "application-asset-management.png", "sha256": "8c14087c641c4704af30030b1d38e9b9405db50429a56cd0c57722de9c443105", "width": 144, "height": 144, "render": "40x40 contain" },
+    { "file": "application-contract-special.png", "sha256": "9f23f4ec7c08fc55bf0fb221b74b71c055ceb1e1e79f447106564f5992fa1f84", "width": 144, "height": 144, "render": "40x40 contain" },
+    { "file": "application-major-decision.png", "sha256": "8209a91e19b2edc073630b8de4ab753637e0cde825170e9efaad51fdeef71dd0", "width": 629, "height": 628, "render": "40x40 contain" }
+  ]
+}
+

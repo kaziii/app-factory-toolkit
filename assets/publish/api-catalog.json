@@ -1,0 +1,739 @@
+{
+  "source": "apps/web/src/lib/bff.js（陌衡企信 BFF）",
+  "generatedAt": "2026-07-22T01:00:36.880Z",
+  "usage": "生成演示应用时：页面数据需求先对照本清单 —— 命中的端点可作真实接口（记入 dataSource），未命中的记入 manifest.expectedApis[]（期望后端提供的接口，随应用展示给评审）。",
+  "endpoints": [
+    {
+      "fn": "fetchSession",
+      "method": "GET",
+      "path": "/api/bff/session",
+      "note": "profile（best-effort，可能为 null）：{ userId, displayName, phone, jobTitle, primaryOrgId }"
+    },
+    {
+      "fn": "fetchContacts",
+      "method": "GET",
+      "path": "/api/bff/contacts",
+      "note": "通讯录：{ source, orgTree, people, total }"
+    },
+    {
+      "fn": "fetchContactDetail",
+      "method": "GET",
+      "path": "/api/bff/contacts/:param",
+      "note": "通讯录人员详情：{ source, person }（含角色/组织绑定，列表不返回这些字段）"
+    },
+    {
+      "fn": "fetchFileTree",
+      "method": "GET",
+      "path": "/api/bff/files/tree",
+      "note": "文件夹树（我的空间 + 共享空间，仅文件夹）：{ source, mine, shared }"
+    },
+    {
+      "fn": "fetchFileDirectory",
+      "method": "GET",
+      "path": "/api/bff/files/directory",
+      "note": "文件中心成员选择使用的组织树与人员目录（Node Mock 阶段由文件域直接提供）。"
+    },
+    {
+      "fn": "fetchFileChildren",
+      "method": "GET",
+      "path": "/api/bff/files/children:param",
+      "note": "parentId 非空=该文件夹下；parentId 空 + space(1=我的/2=共享)=空间根层。fileType 可选筛选。"
+    },
+    {
+      "fn": "searchFiles",
+      "method": "GET",
+      "path": "/api/bff/files/search:param",
+      "note": "搜索 / 全部文件 / 我上传的：{ source, items }（扁平结果带所在路径）"
+    },
+    {
+      "fn": "fetchRecycleBin",
+      "method": "GET",
+      "path": "/api/bff/files/recycle",
+      "note": "回收站列表（只列被删除的顶层项）：{ source, items }"
+    },
+    {
+      "fn": "createSharedRoot",
+      "method": "POST",
+      "path": "/api/bff/files/shared-roots",
+      "note": "创建共享空间根目录（创建人自动成管理员）：{ source, id }"
+    },
+    {
+      "fn": "createFolder",
+      "method": "POST",
+      "path": "/api/bff/files/folders",
+      "note": "新建子文件夹：{ source, id }。parentId 空 + space 表示空间根层。"
+    },
+    {
+      "fn": "fetchFilePreviewData",
+      "method": "GET",
+      "path": "/api/bff/files/:param/preview-data",
+      "note": "统一预览数据：{ source, file, preview }。覆盖文本、Office、压缩包及异常状态。"
+    },
+    {
+      "fn": "renameNode",
+      "method": "PUT",
+      "path": "/api/bff/files/:param/name",
+      "note": "重命名文件夹/文件。"
+    },
+    {
+      "fn": "deleteNode",
+      "method": "DELETE",
+      "path": "/api/bff/files/:param",
+      "note": "删除进回收站（文件夹整子树一并进站）。"
+    },
+    {
+      "fn": "purgeRecycleItem",
+      "method": "DELETE",
+      "path": "/api/bff/files/recycle/:param",
+      "note": "回收站·单项彻底删除（删 COS 实体 + 元数据下线，不可恢复）。"
+    },
+    {
+      "fn": "fetchRootMembers",
+      "method": "GET",
+      "path": "/api/bff/files/shared-roots/:param/members",
+      "note": "根目录成员列表（BFF 已补姓名/部门名）：{ source, items }"
+    },
+    {
+      "fn": "removeRootMember",
+      "method": "GET",
+      "path": "/api/bff/messages",
+      "note": "移除成员（创建人不可移除）。"
+    },
+    {
+      "fn": "fetchMessages",
+      "method": "GET",
+      "path": "/api/bff/messages",
+      "note": "消息中心（ChatTool）会话列表摘要：{ source, conversations }"
+    },
+    {
+      "fn": "fetchApprovalList",
+      "method": "GET",
+      "path": "/api/bff/messages/approvals${query ? ",
+      "note": "我的审批列表：{ source, items, total }。status 1=待审批 2=已同意 3=已拒绝（空=全部）。"
+    },
+    {
+      "fn": "fetchApprovalDetail",
+      "method": "GET",
+      "path": "/api/bff/messages/approvals/:param",
+      "note": "审批详情（抽屉）：{ source, approval }。非本人/不存在 → 303003。"
+    },
+    {
+      "fn": "fetchApprovalCalendar",
+      "method": "GET",
+      "path": "/api/bff/messages/approvals/calendar?:param",
+      "note": "审批日历（日期视图，from/to 必填）：{ source, items }。"
+    },
+    {
+      "fn": "fetchNoticeList",
+      "method": "GET",
+      "path": "/api/bff/notices${query ? ",
+      "note": "我的公告列表（我收到 ∪ 我发布）：{ source, items, total }"
+    },
+    {
+      "fn": "fetchNoticeDetail",
+      "method": "GET",
+      "path": "/api/bff/notices/:param",
+      "note": "公告详情（接收人进详情即幂等记已读）：{ source, notice }"
+    },
+    {
+      "fn": "publishNoticeRequest",
+      "method": "POST",
+      "path": "/api/bff/notices",
+      "note": "发布公告：成功 { source, id }；附件须拿到 id 后逐个上传。"
+    },
+    {
+      "fn": "uploadReceiptAttachment",
+      "method": "GET",
+      "path": "/api/bff/notices/:param/progress",
+      "note": "回执附件上传（可先传附件再提交回执说明）。"
+    },
+    {
+      "fn": "fetchNoticeProgress",
+      "method": "GET",
+      "path": "/api/bff/notices/:param/progress",
+      "note": "进度（发布人；人数口径）：{ source, progress }"
+    },
+    {
+      "fn": "fetchNoticeRecipients",
+      "method": "GET",
+      "path": "/api/bff/notices/:param/recipients",
+      "note": "处理明细（发布人；BFF 已补姓名）：{ source, items }"
+    },
+    {
+      "fn": "archiveNoticesRequest",
+      "method": "PUT",
+      "path": "/api/bff/notices/archive",
+      "note": "归档（owner-only，单/批量；任一失败整批回滚）。"
+    },
+    {
+      "fn": "downloadNoticeAttachment",
+      "method": "GET",
+      "path": "/api/bff/notices/categories",
+      "note": "附件下载（公告附件 / 回执附件通用）。"
+    },
+    {
+      "fn": "fetchNoticeCategories",
+      "method": "GET",
+      "path": "/api/bff/notices/categories",
+      "note": "v3：发布时 category 须传所选项的 code（不是 name），否则 302023。返回 { source, items:[{code,name,sort}] }"
+    },
+    {
+      "fn": "fetchNotifications",
+      "method": "GET",
+      "path": "/api/bff/messages/notifications${query ? ",
+      "note": "我的通知列表：{ source, items, total }"
+    },
+    {
+      "fn": "fetchMessageBadge",
+      "method": "GET",
+      "path": "/api/bff/messages/badge",
+      "note": "红点 badge（源业务态实时算；30~60s 轮询，禁高频）：{ source, badge }"
+    },
+    {
+      "fn": "fetchHrOverview",
+      "method": "GET",
+      "path": "/api/bff/hr-metrics/overview",
+      "note": "数据集核心指标（卡片 + 指标大屏，直查库1时点聚合）：{ source, metrics:{...} }"
+    },
+    {
+      "fn": "fetchHrDetail",
+      "method": "GET",
+      "path": "/api/bff/hr-metrics/detail:param",
+      "note": "数据明细（最小字段集，手机号已脱敏）：{ source, columns, items, total, page, pageSize }"
+    },
+    {
+      "fn": "fetchHrHeadcountTrend",
+      "method": "GET",
+      "path": "/api/bff/hr-metrics/headcount-trend:param",
+      "note": "近15天员工数趋势（库2每日快照）：{ source, orgId, days, items:[{snapshotDate, headcount, delta}] }"
+    },
+    {
+      "fn": "fetchHrContractRisk",
+      "method": "GET",
+      "path": "/api/bff/hr-metrics/contract-risk",
+      "note": "{ source, items:[{ orgId, org, totalEmployee, signedPersons, unsignedPersons, validContractCopies, pushedAt, deadline }] }"
+    },
+    {
+      "fn": "fetchBoardDatasets",
+      "method": "GET",
+      "path": "/api/bff/board/datasets",
+      "note": "纪检（DISCIPLINE_REALTIME）实时算主/辅指标、质量分、行数·字段数；业财/人事（EXTERNAL）为占位。"
+    },
+    {
+      "fn": "fetchBoardScreen",
+      "method": "GET",
+      "path": "/api/bff/board/datasets/:param/screen",
+      "note": "大屏详情：{ source, screen: DatasetScreenVO }。未授权 / 不存在统一 306001（不泄露存在性）。"
+    },
+    {
+      "fn": "fetchAiModels",
+      "method": "GET",
+      "path": "/api/bff/ai-capabilities/models",
+      "note": "—— AI 能力中心（Node Mock；后续 Java 接口就绪后只替换 BFF 内部实现）——"
+    },
+    {
+      "fn": "fetchAiAbilities",
+      "method": "GET",
+      "path": "/api/bff/ai-capabilities/abilities",
+      "note": ""
+    },
+    {
+      "fn": "saveAiAbilityConfig",
+      "method": "POST",
+      "path": "/api/bff/ai-capabilities/abilities/:param/config",
+      "note": ""
+    },
+    {
+      "fn": "fetchAiKnowledgeBases",
+      "method": "GET",
+      "path": "/api/bff/ai-capabilities/knowledge-bases",
+      "note": ""
+    },
+    {
+      "fn": "createAiKnowledgeBase",
+      "method": "POST",
+      "path": "/api/bff/ai-capabilities/knowledge-bases",
+      "note": ""
+    },
+    {
+      "fn": "uploadAiKnowledgeFile",
+      "method": "POST",
+      "path": "/api/bff/ai-capabilities/knowledge-bases/:param/files",
+      "note": ""
+    },
+    {
+      "fn": "fetchAiCalls",
+      "method": "GET",
+      "path": "/api/bff/ai-capabilities/calls",
+      "note": ""
+    },
+    {
+      "fn": "fetchAiBilling",
+      "method": "GET",
+      "path": "/api/bff/ai-capabilities/billing",
+      "note": ""
+    },
+    {
+      "fn": "requestAiExport",
+      "method": "POST",
+      "path": "/api/bff/ai-capabilities/exports/:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchPortalApps",
+      "method": "GET",
+      "path": "/api/bff/portal/apps",
+      "note": "当前用户可见应用：{ source, apps: PortalAppVO[] }"
+    },
+    {
+      "fn": "fetchPreviewApps",
+      "method": "GET",
+      "path": "/api/bff/preview/apps",
+      "note": "在线演示应用列表（「应用入口」演示卡片）：{ apps: [{ id, label, desc, accent, creator, expiresAt }] }"
+    },
+    {
+      "fn": "fetchPreviewApp",
+      "method": "GET",
+      "path": "/api/bff/preview/apps/:param",
+      "note": "PreviewHost 渲染取件（最新版源码包）：{ app, version, manifest, files }"
+    },
+    {
+      "fn": "queryPreviewVersions",
+      "method": "POST",
+      "path": "/api/bff/preview/versions/query",
+      "note": "版本记录查询（技术中心「版本记录」页）：输 12 位码 → { issuedTo, policyId, records[] }"
+    },
+    {
+      "fn": "fetchRiskOverview",
+      "method": "GET",
+      "path": "/api/bff/risk/overview?:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchRiskDetail",
+      "method": "GET",
+      "path": "/api/bff/risk/events/:param",
+      "note": "风险详情（登录态；来源全字段 + 研判态 + 材料清单）：{ source, event: RiskDetailVO }。不存在 307001。"
+    },
+    {
+      "fn": "fetchRiskBusinessEvents",
+      "method": "GET",
+      "path": "/api/bff/risk/events/:param/business-events",
+      "note": ""
+    },
+    {
+      "fn": "fetchRiskBusinessEventDetail",
+      "method": "GET",
+      "path": "/api/bff/risk/business-events/:param",
+      "note": ""
+    },
+    {
+      "fn": "transferRisk",
+      "method": "POST",
+      "path": "/api/bff/risk/events/:param/transfer",
+      "note": "body 各字段可空（taskTitle/responsibleDept/deadline/disposalSuggestion/closeStandard）。"
+    },
+    {
+      "fn": "fetchSuperviseTasks",
+      "method": "GET",
+      "path": "/api/bff/supervise/tasks?:param",
+      "note": "—— 任务督办工作台（当前由 Node Mock 提供，后续在 BFF 内切换 Java 数据源）——"
+    },
+    {
+      "fn": "fetchSuperviseDetail",
+      "method": "GET",
+      "path": "/api/bff/supervise/tasks/:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchWorkOrderParameters",
+      "method": "GET",
+      "path": "/api/bff/dispatch/work-order/parameters",
+      "note": "—— 调度中心 · 工单参数 / 工单配置（Node Mock，后续由 BFF 切换 Java 数据源）——"
+    },
+    {
+      "fn": "saveWorkOrderParameters",
+      "method": "PUT",
+      "path": "/api/bff/dispatch/work-order/parameters",
+      "note": ""
+    },
+    {
+      "fn": "fetchWorkOrderConfigurations",
+      "method": "GET",
+      "path": "/api/bff/dispatch/work-order/configurations${query ? ",
+      "note": ""
+    },
+    {
+      "fn": "fetchWorkOrderInstances",
+      "method": "POST",
+      "path": "/api/bff/dispatch/work-order/configurations",
+      "note": ""
+    },
+    {
+      "fn": "saveWorkOrderConfiguration",
+      "method": "POST",
+      "path": "/api/bff/dispatch/work-order/configurations",
+      "note": ""
+    },
+    {
+      "fn": "deleteWorkOrderConfiguration",
+      "method": "GET",
+      "path": "/api/bff/dispatch/work-order/collaboration-config",
+      "note": ""
+    },
+    {
+      "fn": "fetchWorkOrderCollaborationConfig",
+      "method": "GET",
+      "path": "/api/bff/dispatch/work-order/collaboration-config",
+      "note": ""
+    },
+    {
+      "fn": "saveWorkOrderCollaborationConfig",
+      "method": "PUT",
+      "path": "/api/bff/dispatch/work-order/collaboration-config",
+      "note": ""
+    },
+    {
+      "fn": "launchCollaborativeWorkOrder",
+      "method": "POST",
+      "path": "/api/bff/dispatch/work-order/collaboration/launch",
+      "note": ""
+    },
+    {
+      "fn": "fetchDataReportTasks",
+      "method": "GET",
+      "path": "/api/bff/data-report/tasks:param)}",
+      "note": "填报任务列表（三视角）：{ source, items, total }。scope=launch 我发起的 / fill 我填报的 / manage 我管理的。"
+    },
+    {
+      "fn": "fetchDataReportTask",
+      "method": "GET",
+      "path": "/api/bff/data-report/tasks/:param",
+      "note": "任务详情（含模板 / 填报人子任务 / 附件）：{ source, task }。"
+    },
+    {
+      "fn": "fetchLastDataReportTask",
+      "method": "GET",
+      "path": "/api/bff/data-report/tasks/last",
+      "note": "最近一次发起的任务（新建弹窗「同步上次任务信息」）：{ source, task }。"
+    },
+    {
+      "fn": "createDataReportTask",
+      "method": "POST",
+      "path": "/api/bff/data-report/tasks",
+      "note": "创建任务（下发）：{ source, task }。"
+    },
+    {
+      "fn": "updateDataReportTask",
+      "method": "PUT",
+      "path": "/api/bff/data-report/tasks/:param",
+      "note": "编辑任务：{ source, task }。"
+    },
+    {
+      "fn": "cancelDataReportTask",
+      "method": "DELETE",
+      "path": "/api/bff/data-report/tasks/:param",
+      "note": "取消任务（原因必填）：{ source, ok }。"
+    },
+    {
+      "fn": "deleteDataReportTask",
+      "method": "DELETE",
+      "path": "/api/bff/data-report/tasks/:param",
+      "note": "删除任务：{ source, ok }。"
+    },
+    {
+      "fn": "fetchDataReportTemplates",
+      "method": "GET",
+      "path": "/api/bff/data-report/templates/:param",
+      "note": "模板列表：{ source, items }。enabledOnly=true 仅启用（新建任务下拉用）。"
+    },
+    {
+      "fn": "fetchDataReportTemplate",
+      "method": "GET",
+      "path": "/api/bff/data-report/templates/:param",
+      "note": "模板详情：{ source, template }。"
+    },
+    {
+      "fn": "saveDataReportTemplate",
+      "method": "POST",
+      "path": "/api/bff/data-report/templates",
+      "note": "新建/编辑模板（含 sheetList 设计）：{ source, template }。"
+    },
+    {
+      "fn": "toggleDataReportTemplate",
+      "method": "DELETE",
+      "path": "/api/bff/data-report/templates/:param",
+      "note": "模板启用/停用：{ source, ok }。"
+    },
+    {
+      "fn": "deleteDataReportTemplate",
+      "method": "DELETE",
+      "path": "/api/bff/data-report/templates/:param",
+      "note": "删除模板（使用中的模板 400104 拒绝）：{ source, ok }。"
+    },
+    {
+      "fn": "saveTemplateRules",
+      "method": "GET",
+      "path": "/api/bff/data-report/settings/params",
+      "note": "审查规则设置：{ source, ok, rules }。"
+    },
+    {
+      "fn": "fetchDataReportParams",
+      "method": "GET",
+      "path": "/api/bff/data-report/settings/params",
+      "note": "参数设置读 / 写：{ source, params }。"
+    },
+    {
+      "fn": "saveDataReportParams",
+      "method": "POST",
+      "path": "/api/bff/data-report/settings/params",
+      "note": ""
+    },
+    {
+      "fn": "fetchDataReports",
+      "method": "GET",
+      "path": "/api/bff/data-report/reports:param",
+      "note": "报表列表（按模板聚合）：{ source, items }。"
+    },
+    {
+      "fn": "fetchDataReportSheet",
+      "method": "GET",
+      "path": "/api/bff/data-report/reports/:param/records",
+      "note": "报表详情（聚合已通过数据，可按 taskId 过滤）：{ source, sheet }。"
+    },
+    {
+      "fn": "fetchReportRecords",
+      "method": "GET",
+      "path": "/api/bff/data-report/reports/:param/records",
+      "note": "上报记录列表 / 新增：{ source, items } / { source, record }。"
+    },
+    {
+      "fn": "addReportRecordRequest",
+      "method": "POST",
+      "path": "/api/bff/data-report/reports/:param/records",
+      "note": ""
+    },
+    {
+      "fn": "fetchLibraryItems",
+      "method": "GET",
+      "path": "/api/bff/data-report/library:param",
+      "note": "项目库列表 / 保存 / 删除。"
+    },
+    {
+      "fn": "saveLibraryItem",
+      "method": "POST",
+      "path": "/api/bff/data-report/library",
+      "note": ""
+    },
+    {
+      "fn": "deleteLibraryItem",
+      "method": "DELETE",
+      "path": "/api/bff/data-report/library/:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchExchangePartners",
+      "method": "GET",
+      "path": "/api/bff/exchange/partners:param",
+      "note": "接入方列表：{ source, data: Partner[] }（凭证已脱敏）。"
+    },
+    {
+      "fn": "saveExchangePartner",
+      "method": "PUT",
+      "path": "/api/bff/exchange/partners/:param",
+      "note": "新增/编辑接入方；participation 变更冲突返回 409 code=PARTICIPATION_CONFLICT（RD-02）。"
+    },
+    {
+      "fn": "resetExchangeCredential",
+      "method": "GET",
+      "path": "/api/bff/exchange/flows:param",
+      "note": "重置平台接收凭证（RD-03：二次确认在前端，审计在服务端）。"
+    },
+    {
+      "fn": "fetchExchangeFlows",
+      "method": "GET",
+      "path": "/api/bff/exchange/flows:param",
+      "note": "数据流列表：{ data: { stats, list } }。"
+    },
+    {
+      "fn": "saveExchangeFlow",
+      "method": "PUT",
+      "path": "/api/bff/exchange/flows/:param",
+      "note": "新建/编辑数据流；唯一性冲突 409 FLOW_DUPLICATE（RD-04），启用校验失败 422 FLOW_INVALID（RD-06）。"
+    },
+    {
+      "fn": "toggleExchangeFlow",
+      "method": "GET",
+      "path": "/api/bff/exchange/runs:param",
+      "note": "数据流启停：启用时服务端跑 RD-06 校验。"
+    },
+    {
+      "fn": "fetchExchangeRuns",
+      "method": "GET",
+      "path": "/api/bff/exchange/runs:param",
+      "note": "运行记录：{ data: { stats, list, total } }（列表项不含报文，A15）。"
+    },
+    {
+      "fn": "fetchExchangeRunDetail",
+      "method": "GET",
+      "path": "/api/bff/exchange/runs/:param",
+      "note": "运行详情：失败记录才含请求/响应报文（已脱敏）。"
+    },
+    {
+      "fn": "retryExchangeRun",
+      "method": "POST",
+      "path": "/api/bff/exchange/runs/manual-report",
+      "note": "失败重试：使用最新业务数据与映射配置，保留原记录与每次重试记录（MON-005）。"
+    },
+    {
+      "fn": "submitManualReport",
+      "method": "POST",
+      "path": "/api/bff/exchange/runs/manual-report",
+      "note": "人工报送：仅已启用+输出+人工触发数据流（MON-006）。"
+    },
+    {
+      "fn": "fetchExchangeMeta",
+      "method": "GET",
+      "path": "/api/bff/exchange/meta",
+      "note": "开放元数据 + 平台公共配置：{ data: { modules, platform } }。"
+    },
+    {
+      "fn": "fetchIndicators",
+      "method": "GET",
+      "path": "/api/bff/data/indicators:param",
+      "note": "指标列表：{ source, data: Indicator[] }。scope=atlas 时服务端只返回「最新且启用」。"
+    },
+    {
+      "fn": "fetchIndicatorDetail",
+      "method": "GET",
+      "path": "/api/bff/data/indicators/:param",
+      "note": "指标详情（含当前版本）：{ data: Indicator }。"
+    },
+    {
+      "fn": "saveIndicator",
+      "method": "PUT",
+      "path": "/api/bff/data/indicators/:param",
+      "note": "新建/编辑指标：保存后由后端生成版本；表单不含编码与版本号。"
+    },
+    {
+      "fn": "setIndicatorStatus",
+      "method": "DELETE",
+      "path": "/api/bff/data/indicators/:param",
+      "note": "启停指标：同一指标仅一个启用版本（后端保证）。"
+    },
+    {
+      "fn": "deleteIndicator",
+      "method": "DELETE",
+      "path": "/api/bff/data/indicators/:param",
+      "note": "删除指标（删除后不可恢复）。"
+    },
+    {
+      "fn": "fetchIndicatorVersions",
+      "method": "GET",
+      "path": "/api/bff/data/indicators/:param/versions",
+      "note": "版本列表：{ data: Version[] }（仅查看，无回滚）。"
+    },
+    {
+      "fn": "importIndicators",
+      "method": "POST",
+      "path": "/api/bff/data/indicators/import",
+      "note": "批量上传指标（Excel）：multipart 透传给后端；结果 { total, success, fail, errors[] }。"
+    },
+    {
+      "fn": "fetchBoards",
+      "method": "GET",
+      "path": "/api/bff/data/dashboards:param",
+      "note": "看板设置列表。"
+    },
+    {
+      "fn": "saveBoard",
+      "method": "PUT",
+      "path": "/api/bff/data/dashboards/:param",
+      "note": ""
+    },
+    {
+      "fn": "deleteBoard",
+      "method": "DELETE",
+      "path": "/api/bff/data/dashboards/:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchBoardRelations",
+      "method": "GET",
+      "path": "/api/bff/data/dashboard-relations:param",
+      "note": "看板关联（含顶部指标卡 + 四类关联明细）。"
+    },
+    {
+      "fn": "saveBoardRelations",
+      "method": "PUT",
+      "path": "/api/bff/data/dashboards/:param/relations",
+      "note": ""
+    },
+    {
+      "fn": "fetchBoardCategories",
+      "method": "GET",
+      "path": "/api/bff/data/dashboard-categories:param",
+      "note": "看板分类。被引用分类删除 → 后端返回占用提示（BFF 透传，前端弹「无法删除」）。"
+    },
+    {
+      "fn": "saveBoardCategory",
+      "method": "POST",
+      "path": "/api/bff/data/dashboard-categories",
+      "note": ""
+    },
+    {
+      "fn": "setBoardCategoryStatus",
+      "method": "DELETE",
+      "path": "/api/bff/data/dashboard-categories/:param",
+      "note": ""
+    },
+    {
+      "fn": "deleteBoardCategory",
+      "method": "DELETE",
+      "path": "/api/bff/data/dashboard-categories/:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchDevSources",
+      "method": "GET",
+      "path": "/api/bff/data/dev/sources:param",
+      "note": "数据源列表（连接状态由后端按调度结果计算）。"
+    },
+    {
+      "fn": "saveDevSource",
+      "method": "PUT",
+      "path": "/api/bff/data/dev/sources/:param",
+      "note": ""
+    },
+    {
+      "fn": "testDevSource",
+      "method": "POST",
+      "path": "/api/bff/data/dev/sources/test",
+      "note": "测试连接（一期后端未就绪时 BFF 直接模拟返回）。"
+    },
+    {
+      "fn": "deleteDevSource",
+      "method": "DELETE",
+      "path": "/api/bff/data/dev/sources/:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchDevExtracts",
+      "method": "GET",
+      "path": "/api/bff/data/dev/extracts:param",
+      "note": "抽取配置列表。"
+    },
+    {
+      "fn": "saveDevExtract",
+      "method": "PUT",
+      "path": "/api/bff/data/dev/extracts/:param",
+      "note": ""
+    },
+    {
+      "fn": "deleteDevExtract",
+      "method": "DELETE",
+      "path": "/api/bff/data/dev/extracts/:param",
+      "note": ""
+    }
+  ]
+}

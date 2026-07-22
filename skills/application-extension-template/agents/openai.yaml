@@ -1,0 +1,4 @@
+interface:
+  display_name: "Application Extension Template"
+  short_description: "Generate standalone Basic app shells"
+  default_prompt: "Use $application-extension-template to generate a standalone Basic business application from my functional structure document."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Application Extension"
+  short_description: "Help with Application Extension tasks"
+  default_prompt: "Use $application-extension to generate a Basic operational application, choosing platform-integrated or standalone mode and applying the bundled portable component specification, resources, and matching visual states."
