@@ -54,7 +54,7 @@ request_user_input({
 | 产品经理   | 使用业务语言核对最小必要信息，隐藏无关代码细节，交付可运行应用、可直接打开的 `产品经理预览.html`、假设和差距清单。 |
 | 设计师     | 优先核对结构、证据状态、Spec ID 和视觉验收，不把推断结果写成 `confirmed`。       |
 | 研发       | 明确目标仓库、路由、组件 owner、数据接口、修改边界和验证命令。                   |
-| 工具维护者 | 维护规范、两个 skill、版本和打包校验；默认不生成业务应用。                       |
+| 工具维护者 | 维护规范、内置 skill、版本和打包校验；默认不生成业务应用。                       |
 
 角色只影响沟通方式，不直接决定使用哪个 skill。
 
@@ -66,43 +66,37 @@ request_user_input({
 
 `application-id` 必须是单一路径段，格式为 `^[a-z0-9][a-z0-9-]{0,63}$`；禁止 `..`、斜杠、反斜杠、空白和绝对路径。读取输入或写入产物前，必须使用 `lstat` / `realpath` 确认 `inputs` 与 `outputs` 根是工具包内的真实目录、目标不是符号链接，并确认解析后的路径仍包含在对应根目录内。任一检查失败立即停止，不得跟随链接或改写管理区。
 
-至少确认：
+本工具只有一种生成模式：全新 standalone Basic React/Vite 应用。不得向使用者询问"用哪个模板 / 哪种执行模式 / 哪个档位"。至少确认：
 
-- 是接入现有平台仓库，还是生成全新的 standalone React/Vite 应用；
-- 档位是 Basic、Pro 还是 Max；
-- 是否存在 HTML、Figma、截图、旧系统或既有源码等迁移证据；
-- 是否要求来源保真或高度定制；
 - 稳定的 `application-id`、模块、Tab、页面、数据和验收范围。
+
+若使用者明确要求现有平台接入、Pro / Max 档位或 HTML / Figma / 旧系统迁移，如实告知这些形态不在本工具当前的生成范围内，不得把需求静默降级为 Basic 后继续。
 
 业务空白不得擅自伪造为已确认事实。使用 `confirmed`、`target`、`inferred`、`gap`、`deferred` 标记证据状态。
 
-## 3. 自动 skill 路由
+## 3. Skill 路由（单一模式）
 
-每个目标应用必须选择一个且仅一个 shell owner。读取选中 skill 的 `SKILL.md` 全文，并按其中的引用规则继续读取必要资源；不要同时加载另一套壳层实现。
+本工具的唯一默认执行入口是 `skills/application-extension-template/SKILL.md`。所有生成任务直接读取该 skill 的 `SKILL.md` 全文，并按其中的引用规则继续读取必要资源；不得就"使用哪个模板 / 哪个 skill"向使用者发起询问。
 
-| 任务上下文                                                                                  | 唯一执行入口                                     |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 全新 standalone React/Vite、明确为 Basic、标准运营型应用、目标是快速或 quick 生成可运行产物 | `skills/application-extension-template/SKILL.md` |
-| 现有平台或 platform-integrated 接入                                                         | `skills/application-extension/SKILL.md`          |
-| Pro / Max 任一档位                                                                          | `skills/application-extension/SKILL.md`          |
-| HTML、Figma、截图、旧系统、既有源码迁移，或要求来源保真、高度定制/custom                    | `skills/application-extension/SKILL.md`          |
+每个目标应用必须选择一个且仅一个 shell owner，不要同时加载另一套壳层实现。
 
-若信息不足以唯一选择，只追问会改变上述路由的最小问题。不得因为角色是产品经理就默认选择 template，也不得把 Pro 或 Max 降级成 Basic。
-
-> 陌衡企信部署形态收敛：当目标是发布到陌衡企信演示环境时，只使用 Basic 档位与
-> `application-extension-template` 路由；Pro / Max / 迁移路由在该形态下不触发。
-> 生成页面的数据需求须对照 `assets/publish/api-catalog.json`：命中的端点记为真实接口，
+> 生成页面的数据需求须对照 `skills/application-extension-template/references/publish/api-catalog.json`：命中的端点记为真实接口，
 > 未命中的记入 manifest `expectedApis[]`（作为给后端的接口需求清单随应用展示）。
+> 生成体量以业务功能结构文档为准，并受本机生成上限约束：上限由服务端按「验证码 + deviceId」
+> 配置，在**上一次推送的响应**里下发并缓存到 `~/.moheng-appfactory/config` 的 `limits`
+> （见 template SKILL.md「Generation limits」节与 PUSH.md §5.1）。
+> 生成阶段**只读本地配置、不发任何网络请求、不读取任何本机特征**；无缓存时用默认档
+> `maxFiles: 30` + 演示数据。生效上限必须在生成前一句话告知使用者，缓存值只写不改、不得调高；
+> 装不下时说明砍了什么，禁止静默删功能。服务端在推送时二次校验，被拒按失败对照表如实告知。
 
 壳层所有权规则：
 
-- `application-extension-template` 只拥有全新 standalone Basic 的完整壳层。
-- `application-extension` 负责复用现有平台壳层，或生成来源保真、Pro、Max、迁移和高度定制应用。
+- `application-extension-template` 拥有生成应用的完整壳层，是唯一壳层 owner。
 - 禁止在同一应用中复制 template 壳层后再生成第二套顶部用户栏、一级导航或 Module + Tab。
 
 ## 4. 执行与输出合同
 
-每个新应用写入 `outputs/<application-id>/`。再次校验安全 ID 和路径 containment 后才能创建目标。目标目录已存在时默认不覆盖：继续迭代必须先读取现状并保留用户改动；新应用应使用新的稳定 ID。不得修改 `docs/`、`skills/`、`inputs/_模板/` 或根入口来绕过业务实现。
+每个新应用写入 `outputs/<application-id>/`。再次校验安全 ID 和路径 containment 后才能创建目标。目标目录已存在时默认不覆盖：继续迭代必须先读取现状并保留用户改动；新应用应使用新的稳定 ID。不得修改 `docs/`、`skills/`、`inputs/_templates/` 或根入口来绕过业务实现。
 
 当已确认角色为产品经理，且已确认稳定 `application-id`、业务结构和安全输出路径时，除正式应用源码外还必须生成：
 
@@ -115,6 +109,11 @@ outputs/<application-id>/产品经理预览.html
 ```bash
 node scripts/verify-product-manager-preview.mjs outputs/<application-id>/产品经理预览.html
 ```
+
+生成成功后必须把预览**作为可点开的本地链接交回用户**并等待确认，不得只说"文件已生成"：
+交付消息须包含 `产品经理预览.html` 的绝对 `file://` 链接（空格与中文路径段需 URL 编码）
+和纯绝对路径、一句核对要点（模块/Tab/页面/动作/待确认项）、以及"确认无误后回复「发布」
+即可推送到演示环境"。发布必须等到这句确认，生成成功本身不构成发布授权。
 
 该预览可直接通过 `file://` 打开，仅用于产品确认；它不是第二套业务壳层，不替代正式 React/Vite 应用，也不能替代正式应用的构建、运行或浏览器验收。设计师、研发和工具维护者不因角色自动生成这个文件。
 
@@ -148,15 +147,24 @@ node scripts/doctor.mjs
 
 ## 6. 发布到陌衡企信演示环境（publish 阶段）
 
-`verify` 完成后，仅当同时满足以下条件才进入 `publish`：角色=产品经理、目标
+`verify` 完成后，仅当同时满足以下条件才进入 `publish`：目标
 `outputs/<application-id>` 已通过本地检查（`产品经理预览.html` 结构确认，或有 Node 时
-`pnpm check` 通过）、且产品经理**明确要求发布**。不满足任一条件时不得推送，也不得
-主动替产品经理决定发布。
+`pnpm check` 通过）、且使用者**明确要求发布**。不满足任一条件时不得推送，也不得
+主动替使用者决定发布。发布不需要再次确认角色（明确要求发布即授权），也不得向使用者
+询问演示站地址（已内置在 PUSH.md）；整个联动只需向使用者索要一次 12 位验证码
+（本地已保存则一并跳过）。
 
-进入 publish 后，读取并严格执行 `assets/publish/PUSH.md`（唯一执行依据）：
-验证码获取与本地保存、payload.json 组装规则、curl / Invoke-RestMethod 命令模板、
-成功后必须交付的三件套（临时链接+有效期 / 版本记录入口 / 接口需求清单）、失败对照表。
+进入 publish 后，读取并严格执行
+`skills/application-extension-template/references/publish/PUSH.md`（唯一执行依据；发布能力
+随 template skill 分发，插件安装形态由该 skill 的 publish 章节直接承接）：
+验证码获取与本地保存、**推送预检（先查该码名下已有应用清单，与使用者确认本次是
+「更新已有应用」还是「新增应用」，据此填 payload 的 `mode`，意图不明必须停下询问）**、
+payload.json 组装规则、curl / Invoke-RestMethod 命令模板、
+成功后必须交付的四件套（本次动作是新增还是更新至第几版 / 临时链接+有效期 /
+版本记录入口 / 接口需求清单）、失败对照表。
 
 安全红线：验证码由平台管理员按人发放（12 位，长期有效，推送与版本记录查询共用）；
-401/429 时如实报错停止，禁止更换字符重试；payload 不得包含 `policy`/`policyId`/
-`strength` 等策略覆盖字段；发布产物是演示应用，不承诺生产可用。
+401/429 时如实报错停止，禁止更换字符重试；推送随带的本机标识 `deviceId` 必须是随机生成
+（禁止由 MAC/磁盘序列号/主机名/用户名等派生，也不得采集这些信息），首次生成时如实告知
+使用者、被问必答、使用者要求即删；payload 不得夹带任何试图放宽服务端校验的字段；
+发布产物是演示应用，不承诺生产可用。

@@ -1,4 +1,4 @@
 outputs/*
 !outputs/.gitkeep
 inputs/*
-!inputs/_模板/
+!inputs/_templates/

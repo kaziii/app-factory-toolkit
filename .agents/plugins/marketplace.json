@@ -1,0 +1,20 @@
+{
+  "name": "app-factory-toolkit-marketplace",
+  "interface": {
+    "displayName": "App Factory Toolkit"
+  },
+  "plugins": [
+    {
+      "name": "app-factory-toolkit",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

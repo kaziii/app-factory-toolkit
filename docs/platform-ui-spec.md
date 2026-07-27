@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | 产品总纲 | 档位、所有权、结构、术语、元素索引、验收 | 本文档 |
 | 专题规范 | Tokens、壳层、页面、状态、视觉证据 | `docs/design-system/` |
-| 执行知识 | Codex 如何生成、迁移和验证业务应用 | `application-extension` skill（`$CODEX_HOME/skills/application-extension/`） |
+| 执行知识 | Codex 如何生成和验证业务应用 | `application-extension-template` skill（`skills/application-extension-template/`） |
 | 组件目录 | 当前生产组件、Props、状态、Token、来源和测试 | `apps/web/src/features/ui-component-center/` |
 | 实现事实 | 当前路由、样式、组件、测试及已知差距 | 仓库源码与测试 |
 

@@ -36,9 +36,10 @@ const errors = [];
 
 const requiredPaths = [
   "AGENTS.md",
-  "开始使用.md",
+  "SKILL.md",
+  "start.md",
   "toolkit-manifest.json",
-  "docs/平台建设UI规范.md",
+  "docs/platform-ui-spec.md",
   "docs/design-system/01-foundations.md",
   "docs/design-system/02-shell-navigation.md",
   "docs/design-system/03-application-page-patterns.md",
@@ -46,11 +47,10 @@ const requiredPaths = [
   "docs/design-system/05-evidence-acceptance.md",
   "docs/design-system/assets/basic-business-application-frame.png",
   "docs/design-system/assets/max-platform-boundary.png",
-  "skills/application-extension/SKILL.md",
   "skills/application-extension-template/SKILL.md",
   "assets/product-manager-preview.html",
-  "inputs/_模板/业务应用需求模板.md",
-  "inputs/_模板/产品经理应用结构表.md",
+  "inputs/_templates/application-requirement-template.md",
+  "inputs/_templates/pm-structure-table.md",
   "outputs/.gitkeep",
   "scripts/doctor.mjs",
   "scripts/verify-product-manager-preview.mjs",
@@ -116,13 +116,13 @@ function isSafeManagedPath(relativePath) {
 }
 
 function discoverManagedFiles() {
-  const files = ["AGENTS.md", "开始使用.md", "outputs/.gitkeep"];
+  const files = ["AGENTS.md", "SKILL.md", "start.md", "outputs/.gitkeep"];
   for (const directory of [
     "assets",
     "docs",
     "skills",
     "scripts",
-    "inputs/_模板",
+    "inputs/_templates",
   ]) {
     files.push(
       ...walkFiles(path.join(toolkitRoot, directory)).map(
@@ -155,7 +155,7 @@ if (manifest) {
   const expected = {
     toolkitId: "platform-business-application-toolkit",
     schemaVersion: 1,
-    toolkitVersion: "1.0.0",
+    toolkitVersion: "1.5.0",
     uiSpecVersion: "v1.3",
     baselineViewport: "1920x1080",
     mobileScope: "deferred",
@@ -172,10 +172,9 @@ if (manifest) {
     ? manifest.skills.map((skill) => skill.name)
     : [];
   if (
-    JSON.stringify(names) !==
-    JSON.stringify(["application-extension", "application-extension-template"])
+    JSON.stringify(names) !== JSON.stringify(["application-extension-template"])
   ) {
-    report("manifest skills 必须按规定包含两个 skill");
+    report("manifest skills 必须只包含 application-extension-template");
   }
 
   const managedFiles = manifest.managedFiles;
@@ -219,48 +218,30 @@ if (manifest) {
   }
 }
 
-const mainSkill = readText("skills/application-extension/SKILL.md");
 const templateSkill = readText(
   "skills/application-extension-template/SKILL.md",
 );
 
-if (skillName(mainSkill) !== "application-extension")
-  report("主 skill frontmatter name 不正确");
 if (skillName(templateSkill) !== "application-extension-template")
   report("template skill frontmatter name 不正确");
-for (const [label, source] of [
-  ["主 skill", mainSkill],
-  ["template skill", templateSkill],
-]) {
-  if (!source.includes("v1.3")) report(`${label} 未同步 UI 规范 v1.3`);
-  if (!/1920\s*[x×]\s*1080/i.test(source))
-    report(`${label} 未声明 1920 x 1080 基线`);
-  if (!source.includes("deferred")) report(`${label} 未声明移动端 deferred`);
-}
-if (
-  !/existing-platform|platform-integrated|target platform repository/i.test(
-    mainSkill,
-  )
-) {
-  report("主 skill 未声明现有平台接入能力");
-}
+if (!templateSkill.includes("v1.3"))
+  report("template skill 未同步 UI 规范 v1.3");
+if (!/1920\s*[x×]\s*1080/i.test(templateSkill))
+  report("template skill 未声明 1920 x 1080 基线");
+if (!templateSkill.includes("deferred"))
+  report("template skill 未声明移动端 deferred");
 if (!/standalone Basic applications only/i.test(templateSkill))
   report("template skill 必须限定 standalone Basic");
 if (
   !/Pro or Max/.test(templateSkill) ||
-  !/\$application-extension/.test(templateSkill)
+  !/outside this skill'?s scope/i.test(templateSkill)
 ) {
-  report("template skill 未将 Pro/Max 路由到主 skill");
+  report("template skill 未声明 Pro/Max 超出范围");
 }
-for (const [label, skill] of [
-  ["主 skill", mainSkill],
-  ["template skill", templateSkill],
-]) {
-  if (!/产品经理[\s\S]{0,420}产品经理预览\.html/.test(skill))
-    report(`${label} 缺少产品经理 HTML 预览交付合同`);
-  if (!/verify-product-manager-preview\.mjs/.test(skill))
-    report(`${label} 缺少产品经理 HTML 预览校验命令`);
-}
+if (!/产品经理[\s\S]{0,420}产品经理预览\.html/.test(templateSkill))
+  report("template skill 缺少产品经理 HTML 预览交付合同");
+if (!/verify-product-manager-preview\.mjs/.test(templateSkill))
+  report("template skill 缺少产品经理 HTML 预览校验命令");
 
 const agents = readText("AGENTS.md");
 const agentChecks = [
@@ -286,17 +267,8 @@ const agentChecks = [
     "AGENTS 角色硬门禁不完整",
   ],
   [
-    /standalone[\s\S]*Basic[\s\S]*(快速|quick)[\s\S]*application-extension-template/i,
-    "AGENTS 缺少 template 路由",
-  ],
-  [
-    /(现有平台|platform-integrated)[\s\S]*application-extension/,
-    "AGENTS 缺少现有平台路由",
-  ],
-  [/Pro\s*\/\s*Max[\s\S]*application-extension/, "AGENTS 缺少 Pro/Max 路由"],
-  [
-    /(HTML|Figma|截图|迁移)[\s\S]*application-extension/,
-    "AGENTS 缺少来源迁移路由",
+    /唯一.{0,20}默认.{0,20}(执行入口|入口)[\s\S]{0,200}application-extension-template/,
+    "AGENTS 缺少 template 唯一默认入口",
   ],
   [/一个且仅一个 shell owner/, "AGENTS 缺少单壳层约束"],
   [/outputs\/<application-id>\//, "AGENTS 缺少独立输出目录"],

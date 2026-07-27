@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 重建 toolkit-manifest.json 的 managedFiles 哈希与 builtAt（工具维护者流程）。
-// 发现规则与 scripts/doctor.mjs 完全一致：AGENTS.md、开始使用.md、outputs/.gitkeep
-// + assets/docs/skills/scripts/inputs/_模板 全量文件。改完管理区文件后跑本脚本再跑 doctor。
+// 发现规则与 scripts/doctor.mjs 完全一致：AGENTS.md、SKILL.md、start.md、outputs/.gitkeep
+// + assets/docs/skills/scripts/inputs/_templates 全量文件。改完管理区文件后跑本脚本再跑 doctor。
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync, lstatSync, existsSync } from "node:fs";
 import path from "node:path";
@@ -22,8 +22,8 @@ function walkFiles(rootDir, relativeDir = "") {
   });
 }
 
-const files = ["AGENTS.md", "开始使用.md", "outputs/.gitkeep"];
-for (const directory of ["assets", "docs", "skills", "scripts", "inputs/_模板"]) {
+const files = ["AGENTS.md", "SKILL.md", "start.md", "outputs/.gitkeep"];
+for (const directory of ["assets", "docs", "skills", "scripts", "inputs/_templates"]) {
   files.push(...walkFiles(path.join(root, directory)).map((f) => `${directory}/${f}`));
 }
 

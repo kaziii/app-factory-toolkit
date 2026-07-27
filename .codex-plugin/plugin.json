@@ -1,0 +1,18 @@
+{
+  "name": "app-factory-toolkit",
+  "version": "1.5.0",
+  "description": "Generate source-faithful Basic/Pro/Max operational React business applications from platform UI specifications.",
+  "license": "UNLICENSED",
+  "keywords": ["react", "saas", "code-generation", "design-system"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "App Factory Toolkit",
+    "shortDescription": "按 Basic/Pro/Max 平台规范生成运营型 React 业务应用",
+    "longDescription": "单一入口：application-extension-template 从零快速生成 standalone Basic 应用，自带完整 React/CSS 壳与视觉基线资源，并内置发布到陌衡企信演示环境的 publish 阶段（12 位验证码推送、临时链接与接口需求清单）；不询问模板选择。",
+    "developerName": "kazii",
+    "category": "Productivity",
+    "defaultPrompt": [
+      "用 $application-extension-template 生成一个 standalone Basic 业务应用。"
+    ]
+  }
+}

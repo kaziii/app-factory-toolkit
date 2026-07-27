@@ -1,8 +1,14 @@
 {
   "source": "apps/web/src/lib/bff.js（陌衡企信 BFF）",
-  "generatedAt": "2026-07-22T01:00:36.880Z",
+  "generatedAt": "2026-07-23T08:39:14.913Z",
   "usage": "生成演示应用时：页面数据需求先对照本清单 —— 命中的端点可作真实接口（记入 dataSource），未命中的记入 manifest.expectedApis[]（期望后端提供的接口，随应用展示给评审）。",
   "endpoints": [
+    {
+      "fn": "createUploadIdempotencyKey",
+      "method": "GET",
+      "path": "/api/bff/session",
+      "note": "这里保留回退生成器，兼容直接调用；业务页面应显式传入已缓存的 key。"
+    },
     {
       "fn": "fetchSession",
       "method": "GET",
@@ -12,14 +18,14 @@
     {
       "fn": "fetchContacts",
       "method": "GET",
-      "path": "/api/bff/contacts",
-      "note": "通讯录：{ source, orgTree, people, total }"
+      "path": "/api/bff/contacts${query ? ",
+      "note": "通讯录：{ source, orgTree, people, total, pageNo, pageSize }。筛选与分页均由后端完成。"
     },
     {
       "fn": "fetchContactDetail",
       "method": "GET",
-      "path": "/api/bff/contacts/:param",
-      "note": "通讯录人员详情：{ source, person }（含角色/组织绑定，列表不返回这些字段）"
+      "path": "/api/bff/contacts/:param:param",
+      "note": "通讯录人员详情：默认只返回脱敏联系方式；完整联系方式必须显式传 includeSensitive=true。"
     },
     {
       "fn": "fetchFileTree",
@@ -31,7 +37,7 @@
       "fn": "fetchFileDirectory",
       "method": "GET",
       "path": "/api/bff/files/directory",
-      "note": "文件中心成员选择使用的组织树与人员目录（Node Mock 阶段由文件域直接提供）。"
+      "note": "文件中心成员选择使用的组织树与人员目录（由通讯录真实接口聚合）。"
     },
     {
       "fn": "fetchFileChildren",
@@ -43,7 +49,7 @@
       "fn": "searchFiles",
       "method": "GET",
       "path": "/api/bff/files/search:param",
-      "note": "搜索 / 全部文件 / 我上传的：{ source, items }（扁平结果带所在路径）"
+      "note": "搜索 / 全部文件：{ source, items, total }（后端文件级分页检索）。"
     },
     {
       "fn": "fetchRecycleBin",
@@ -64,10 +70,28 @@
       "note": "新建子文件夹：{ source, id }。parentId 空 + space 表示空间根层。"
     },
     {
+      "fn": "downloadFile",
+      "method": "GET",
+      "path": "/api/bff/files/:param/preview-data",
+      "note": "下载文件（attachment）。"
+    },
+    {
       "fn": "fetchFilePreviewData",
       "method": "GET",
       "path": "/api/bff/files/:param/preview-data",
       "note": "统一预览数据：{ source, file, preview }。覆盖文本、Office、压缩包及异常状态。"
+    },
+    {
+      "fn": "fetchNodeAcl",
+      "method": "GET",
+      "path": "/api/bff/files/:param/acl",
+      "note": "查询个人空间节点 ACL：{ source, items }。"
+    },
+    {
+      "fn": "updateNodeAcl",
+      "method": "PUT",
+      "path": "/api/bff/files/:param/acl",
+      "note": "全量替换个人空间节点 ACL；共享空间节点由成员角色控制。"
     },
     {
       "fn": "renameNode",
@@ -76,16 +100,16 @@
       "note": "重命名文件夹/文件。"
     },
     {
+      "fn": "moveNode",
+      "method": "PUT",
+      "path": "/api/bff/files/:param/move",
+      "note": "移动文件夹/文件；移动到空间根目录时 targetParentId 必须传 space.rootNodeId。"
+    },
+    {
       "fn": "deleteNode",
       "method": "DELETE",
       "path": "/api/bff/files/:param",
       "note": "删除进回收站（文件夹整子树一并进站）。"
-    },
-    {
-      "fn": "purgeRecycleItem",
-      "method": "DELETE",
-      "path": "/api/bff/files/recycle/:param",
-      "note": "回收站·单项彻底删除（删 COS 实体 + 元数据下线，不可恢复）。"
     },
     {
       "fn": "fetchRootMembers",
@@ -115,7 +139,7 @@
       "fn": "fetchApprovalDetail",
       "method": "GET",
       "path": "/api/bff/messages/approvals/:param",
-      "note": "审批详情（抽屉）：{ source, approval }。非本人/不存在 → 303003。"
+      "note": "审批消息投影详情（抽屉只读）：{ source, approval, projectionOnly }。"
     },
     {
       "fn": "fetchApprovalCalendar",
@@ -133,19 +157,31 @@
       "fn": "fetchNoticeDetail",
       "method": "GET",
       "path": "/api/bff/notices/:param",
-      "note": "公告详情（接收人进详情即幂等记已读）：{ source, notice }"
+      "note": "公告聚合详情：{ source, notice }。页面随后显式调用 read 幂等标记已读。"
+    },
+    {
+      "fn": "createNoticeDraftRequest",
+      "method": "POST",
+      "path": "/api/bff/notices",
+      "note": "创建公告草稿：成功 { source, id }。附件与发布必须使用返回的 id。"
+    },
+    {
+      "fn": "updateNoticeDraftRequest",
+      "method": "PUT",
+      "path": "/api/bff/notices/:param",
+      "note": ""
     },
     {
       "fn": "publishNoticeRequest",
       "method": "POST",
-      "path": "/api/bff/notices",
-      "note": "发布公告：成功 { source, id }；附件须拿到 id 后逐个上传。"
+      "path": "/api/bff/notices/:param/publish",
+      "note": "发布已保存的草稿：范围提交只包含 scopeType + scopeIds。"
     },
     {
-      "fn": "uploadReceiptAttachment",
+      "fn": "releaseReceiptAttachment",
       "method": "GET",
       "path": "/api/bff/notices/:param/progress",
-      "note": "回执附件上传（可先传附件再提交回执说明）。"
+      "note": "提交回执前释放本人回执材料绑定。"
     },
     {
       "fn": "fetchNoticeProgress",
@@ -160,16 +196,22 @@
       "note": "处理明细（发布人；BFF 已补姓名）：{ source, items }"
     },
     {
+      "fn": "fetchNoticeReceipts",
+      "method": "GET",
+      "path": "/api/bff/notices/:param/receipts",
+      "note": "回执明细（发布人/管理端）：{ source, items, total }，材料已带 bindingId 与回执用户编号。"
+    },
+    {
+      "fn": "fetchNoticeOperationLogs",
+      "method": "GET",
+      "path": "/api/bff/notices/:param/operation-logs",
+      "note": "管理端操作日志：仅返回 operationType/operatorNickname/reason/status/operatedAt，省略 traceId。"
+    },
+    {
       "fn": "archiveNoticesRequest",
       "method": "PUT",
       "path": "/api/bff/notices/archive",
-      "note": "归档（owner-only，单/批量；任一失败整批回滚）。"
-    },
-    {
-      "fn": "downloadNoticeAttachment",
-      "method": "GET",
-      "path": "/api/bff/notices/categories",
-      "note": "附件下载（公告附件 / 回执附件通用）。"
+      "note": "正常归档（只允许 COMPLETED；BFF 逐条调用后端）。"
     },
     {
       "fn": "fetchNoticeCategories",
@@ -181,7 +223,43 @@
       "fn": "fetchNotifications",
       "method": "GET",
       "path": "/api/bff/messages/notifications${query ? ",
-      "note": "我的通知列表：{ source, items, total }"
+      "note": "我的统一消息列表：{ source, items, total }"
+    },
+    {
+      "fn": "fetchNotificationDetail",
+      "method": "GET",
+      "path": "/api/bff/messages/notifications/:param",
+      "note": ""
+    },
+    {
+      "fn": "markMessagesReadRequest",
+      "method": "PUT",
+      "path": "/api/bff/messages/notifications/read",
+      "note": ""
+    },
+    {
+      "fn": "markAllMessagesReadRequest",
+      "method": "PUT",
+      "path": "/api/bff/messages/notifications/read-all",
+      "note": ""
+    },
+    {
+      "fn": "updateMessageStatusRequest",
+      "method": "PUT",
+      "path": "/api/bff/messages/notifications/status",
+      "note": ""
+    },
+    {
+      "fn": "fetchUnreadNotifications",
+      "method": "GET",
+      "path": "/api/bff/messages/unread?size=:param",
+      "note": ""
+    },
+    {
+      "fn": "fetchMessageCounts",
+      "method": "GET",
+      "path": "/api/bff/messages/counts",
+      "note": ""
     },
     {
       "fn": "fetchMessageBadge",

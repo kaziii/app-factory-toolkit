@@ -31,7 +31,7 @@
 | 获批截图/Figma | 指定状态的结构、可见内容、几何、视觉 | 未展示状态和真实交互结果 |
 | 当前源码/computed style | 当前实现值、组件 owner、route 和状态 | 未来目标是否正确 |
 | 测试 | 被锁定的结构、接口和行为 | 未编写断言的视觉细节 |
-| application-extension | 未来代理的生成与验证步骤 | 独立产品决策 |
+| application-extension-template | 未来代理的生成与验证步骤 | 独立产品决策 |
 
 ### 3.2 状态转换
 
@@ -99,7 +99,7 @@
 | Exclusions | hover、focus、disabled、loading、empty、error、permission 和 Overlay |
 | Evidence status | `inferred`；结构由产品规则与代码确认，图片视觉参数仍需受控截图 |
 
-Basic 其他状态图目前由 `application-extension` skill 的 `$CODEX_HOME/skills/application-extension/assets/screenshots/` 维护，包括 table、sidebar、card、drawer、dialog、global panel、settings、application switcher、account 和 module switcher。P6 同步时记录 skill 规范版本；未复制进仓库的资源继续作为本地执行证据，不作为跨环境唯一链接。
+Basic 其他状态图目前由 `application-extension-template` skill 的 `skills/application-extension-template/assets/reference-states/` 维护，包括 table、sidebar、card、drawer、dialog、global panel、settings、application switcher、account 和 module switcher。P6 同步时记录 skill 规范版本；未复制进仓库的资源继续作为本地执行证据，不作为跨环境唯一链接。
 
 Pro 的完整截图集、1920 × 1080 受控 Basic 截图和 Max 展开/折叠状态图尚未形成正式基线，相关视觉细节保持 `inferred` 或 `gap`。这不影响已确认的 Pro 结构等同 Basic、Max 只新增平台左栏的产品规则。
 
@@ -193,13 +193,12 @@ Pro 的完整截图集、1920 × 1080 受控 Basic 截图和 Max 展开/折叠�
 
 复合组件以主要 Spec ID 登记，组件完整覆盖的其他规范放入 `relatedSpecIds`；仅作为某个规范内部构件时使用 `usedBySpecIds`，且不会因此计为该规范的生产覆盖。Registry 保持当前 export、Props、source/test paths、states、tokens 和 preview 的实现事实，不承担未来产品决策。
 
-### 10.2 application-extension
+### 10.2 application-extension-template
 
 Skill 必须记录同步的总纲版本、同步日期、稳定 Spec ID 来源和证据状态词汇。总纲升级后，如果 skill 尚未同步，代理必须先读取总纲并报告版本差距，不能继续把旧执行镜像当成最新产品规则。
 
 | 执行镜像 | 同步版本 | 同步日期 | 桌面基线 | 状态 |
 | --- | --- | --- | --- | --- |
-| `application-extension` | v1.3 | 2026-07-15 | 1920 × 1080；移动端 deferred | 已同步 |
 | `application-extension-template` | v1.3 | 2026-07-15 | 1920 × 1080；仅 standalone Basic；移动端、紧凑和大屏 deferred | 已同步（Basic-only） |
 
 ## 11. 变更门禁
@@ -210,7 +209,7 @@ Draft source
 → Update master/topic spec and evidence
 → Update implementation and tests
 → Update component-center mapping
-→ Sync application-extension version
+→ Sync application-extension-template version
 → Visual/interaction acceptance
 → Publish change log
 ```

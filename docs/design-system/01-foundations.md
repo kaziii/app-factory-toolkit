@@ -8,7 +8,7 @@
 
 本分册以 `apps/web/index.css` 的公开语义 Token、`apps/web/styles/00-base.css` 的壳层变量、生产组件 CSS Module 和已审阅截图为证据。CSS 当前值只在与产品规则一致时标为 `confirmed`；产品已确认但源码未满足时标为 `target` 或 `gap`；截图未覆盖的状态标为 `inferred`。本版不建立移动端规则。
 
-证据优先级：获批产品规则决定结构和所有权；获批截图决定可见视觉；源码和 computed style 证明当前实现；`application-extension` 是执行镜像，不独立发明产品规则。
+证据优先级：获批产品规则决定结构和所有权；获批截图决定可见视觉；源码和 computed style 证明当前实现；`application-extension-template` 是执行镜像，不独立发明产品规则。
 
 ## 2. 章节目录
 
