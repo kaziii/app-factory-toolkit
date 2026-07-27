@@ -6,7 +6,7 @@
   "baselineViewport": "1920x1080",
   "mobileScope": "deferred",
   "entrypoint": "AGENTS.md",
-  "builtAt": "2026-07-27T06:34:41.356Z",
+  "builtAt": "2026-07-27T10:50:52.102Z",
   "skills": [
     {
       "name": "application-extension-template",
@@ -15,9 +15,8 @@
     }
   ],
   "managedFiles": {
-    "AGENTS.md": "4bd16a791c16081ff63079ecae1f0519f834107a184c4665d19cf3b4e88d930b",
-    "SKILL.md": "f85ac15546fc57e26747f2b39da13693d7a5154a080e91db6e3d1b449ecddb3b",
-    "assets/product-manager-preview.html": "697aae989e2e8dc8b7dab63770bcca452b9f89d278f7dd74f7fdcbf56a66ab89",
+    "AGENTS.md": "00544062cd0543a88033f12d92df1c25bb6a25d51a326bfaec926d81b343f82e",
+    "SKILL.md": "59a57eb53f2e0d307c8ff3ff54c9ffac7ce3ae0ae885c6487e15bf3b3a1f4110",
     "docs/design-system/01-foundations.md": "502500fd8a93905e637aa1fb4c3effab2bcecd343f65c04161229cf2a4f6a173",
     "docs/design-system/02-shell-navigation.md": "3d8eb6398dbe4a104addba2816fa97183571d71765e13b772a3e8635762b6b46",
     "docs/design-system/03-application-page-patterns.md": "949a187a8019fd5b738aa250304b9a4e833966d37ee306db4e15c6b5dd278b69",
@@ -27,13 +26,16 @@
     "docs/design-system/assets/max-platform-boundary.png": "f9d4ee644c8c3e30c238b442f7f338ebce807ea9944e23f010db34064199a9fa",
     "docs/platform-ui-spec.md": "67873abccc12ca718a5f54cdbcbed68f615e709c5e836a2d32f7a27cee727e9e",
     "inputs/_templates/application-requirement-template.md": "4b0e04d32abbf392b0ec2d374a507c5ecd633fc42b8a3f3ea4b09c511b6e8586",
-    "inputs/_templates/pm-structure-table.md": "cd85ae47922c2286b95cde826682b99182374c428469736ced5bf247dc7728ef",
+    "inputs/_templates/pm-structure-table.md": "59157e2351ec80c3f97d25291dbba55ad44d21aefb2733bb0a58eb3bd2e9853e",
     "outputs/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "scripts/doctor.mjs": "bc4a7f8b121d55aa1a624cb1a06de1cd152e46b67e2b0ea22622d026e1572bca",
+    "scripts/doctor.mjs": "a36f85f913d7091eca8819cfbae1a58bb0bcfd2dbcee5e6c956d371ed1fe75bd",
     "scripts/rebuild-manifest.mjs": "155ca1d5c1882539fa6ded573cc75614b7da607fe34d539ae86d2e429e5c0955",
-    "scripts/verify-product-manager-preview.mjs": "266948036c5836e2e1efe1319d0ced3a6e6cccd51ac8de4f2a908af1ade8e4e0",
-    "skills/application-extension-template/SKILL.md": "696c14a87a1ec9235d4ff51f29033eddc09efd7ab3d49a5e5eabcc4c727a0d0e",
+    "skills/application-extension-template/SKILL.md": "7fc9f1c2bec18520ab964feea2b9dc5051ce026f3e1f34f4b3679db6c890bed0",
     "skills/application-extension-template/agents/openai.yaml": "9239cb5f86d5c84c076db7f5a0407c8b06e493dbe9daf4fc213332744eba40e6",
+    "skills/application-extension-template/assets/local-preview-template.html": "77f9a474c4e3a5416ca4370f94dd48347c1305b2540548e001c75666c416fbb1",
+    "skills/application-extension-template/assets/preview-runtime/babel.min.js": "9a4b639c5c1e174ec4702ed5ba6cc897dd8dcbbb6faf59c3a4b817a896c8ae2f",
+    "skills/application-extension-template/assets/preview-runtime/lucide-react.cjs.js": "71c11a74d5f1d357c0ccd3ee4d278346f1ee13c96a62794ff9b00e3f3765217a",
+    "skills/application-extension-template/assets/preview-runtime/react.js": "7c9bfed7871dd5fdffc630a555920a8d173025081a7b9894cc753e0e17c1612b",
     "skills/application-extension-template/assets/react-basic-shell/README.md": "b3e174fbf6345205dd086ae7fdb403271ba41764843be2bdebb18d636ec56f47",
     "skills/application-extension-template/assets/react-basic-shell/index.html": "58426d21c1a7cac70145ce3064ff039ceeec0a4dae894a91e15e90b7ffe6fb49",
     "skills/application-extension-template/assets/react-basic-shell/package.json": "4304ab45808847c755ec0190f37cfb1e56ffe1d70a3f5d996d4434d5269bd20b",
@@ -48,7 +50,7 @@
     "skills/application-extension-template/assets/react-basic-shell/public/basic-shell/manifest.json": "8a8deb3b9a9289dedd7762a19ddeef157b4370bd84f2019b6d91a7e6157e50e8",
     "skills/application-extension-template/assets/react-basic-shell/public/basic-shell/user-avatar.png": "7eda28493ca4067a4e265493449ddd020cdca7640a381f1a00c7f10a9d738fe2",
     "skills/application-extension-template/assets/react-basic-shell/scripts/verify-demo.mjs": "0f405ef0db6163cf3ac7aaea3d4577ad3639d43571849e8f334818f8db965f48",
-    "skills/application-extension-template/assets/react-basic-shell/src/App.jsx": "7c3cfe4d1f16037c2dddb316f69faf2a6cc68639b78b67d75f272ba72119cb3d",
+    "skills/application-extension-template/assets/react-basic-shell/src/App.jsx": "bc67744f216fb019f3ccb4abbed3baadf3b0b03c87ca4bf92805347d490a8a6c",
     "skills/application-extension-template/assets/react-basic-shell/src/BasicApplicationShell.jsx": "75b87f2eaa9248d3f3ecb69e2524e9e9c471759ec7841ecd244105d4de050e3b",
     "skills/application-extension-template/assets/react-basic-shell/src/basic-application-shell.css": "255b8592b40d4e2835164e4ebea59f8e05d436cc458172c73773a8b08a29e6f1",
     "skills/application-extension-template/assets/react-basic-shell/src/basicShellData.js": "c3945ff79cafa7e20d576965aaf80cabbdcf4d92ee67dd30f5ff3ef4b7317cf0",
@@ -65,11 +67,11 @@
     "skills/application-extension-template/assets/reference-states/basic-shell-module-switcher.png": "58d30f8deb6eedf563bf9076d89ca00b7bcc758ebb9ae7b633f83c211b182312",
     "skills/application-extension-template/assets/reference-states/basic-shell-settings-drawer.png": "c1adb4c09543127af9e1cb5edc64ee58821d41b0cc0ddf10f79df11ed0e3f61c",
     "skills/application-extension-template/assets/reference-states/basic-shell-sidebar-list.png": "61bc4c50fb820177ee1ebe36c3589ef8140acec02fd686424bafb1c73cce0549",
-    "skills/application-extension-template/references/publish/PUSH.md": "b88a749a614e46456ba3b1fcfa443dbb4155fec88a4f1ebd1a157913ced2e24d",
+    "skills/application-extension-template/references/publish/PUSH.md": "5e38a93a9b3ed1c431f02c4ed725762788088f2472266ebbd76c041a9ce747d7",
     "skills/application-extension-template/references/publish/api-catalog.json": "c247184aaa94199765b3f48d7ef1aa706acacae4ed04b5b5d8e504284df60d69",
     "skills/application-extension-template/references/template-application-contract.md": "647dfdbdcfc6cb334bfccd9827fb827b6c1a1a3a1277340e66b622c9b5eb2fad",
     "skills/application-extension-template/scripts/verify-basic-shell-assets.mjs": "74ac0075184181937946136a012d4f59f0fa6aad7df07dec247ed8df7789be78",
     "skills/application-extension-template/scripts/verify-template-runtime.test.mjs": "16720c5447f2d5ff3f7cbff72d71f9f4b7cde2f90a4b9a1c70e85e9174a7847a",
-    "start.md": "71801a35454a7ed0243ce19aab994096fc2a4974e0e5b9a9edc1fddc2590fe40"
+    "start.md": "e3c9ba5f8544ded45c7fb29ef44ff49c04cc231664f35028fac2cef50dd40176"
   }
 }

@@ -48,12 +48,14 @@ const requiredPaths = [
   "docs/design-system/assets/basic-business-application-frame.png",
   "docs/design-system/assets/max-platform-boundary.png",
   "skills/application-extension-template/SKILL.md",
-  "assets/product-manager-preview.html",
+  "skills/application-extension-template/assets/local-preview-template.html",
+  "skills/application-extension-template/assets/preview-runtime/react.js",
+  "skills/application-extension-template/assets/preview-runtime/lucide-react.cjs.js",
+  "skills/application-extension-template/assets/preview-runtime/babel.min.js",
   "inputs/_templates/application-requirement-template.md",
   "inputs/_templates/pm-structure-table.md",
   "outputs/.gitkeep",
   "scripts/doctor.mjs",
-  "scripts/verify-product-manager-preview.mjs",
 ];
 
 function report(message) {
@@ -238,10 +240,14 @@ if (
 ) {
   report("template skill 未声明 Pro/Max 超出范围");
 }
-if (!/产品经理[\s\S]{0,420}产品经理预览\.html/.test(templateSkill))
-  report("template skill 缺少产品经理 HTML 预览交付合同");
-if (!/verify-product-manager-preview\.mjs/.test(templateSkill))
-  report("template skill 缺少产品经理 HTML 预览校验命令");
+if (!/本地预览\.html/.test(templateSkill))
+  report("template skill 缺少本地预览交付合同");
+if (!/byte-identical/.test(templateSkill))
+  report("template skill 缺少「所见即所推」payload 一致性红线");
+if (!/preview-runtime/.test(templateSkill))
+  report("template skill 缺少 preview-runtime 运行时约定");
+if (!/NO Node\.js/i.test(templateSkill))
+  report("template skill 缺少默认无 Node 假设");
 
 const agents = readText("AGENTS.md");
 const agentChecks = [
@@ -259,8 +265,8 @@ const agentChecks = [
     "AGENTS 缺少无效角色选择重试合同",
   ],
   [
-    /产品经理[\s\S]{0,420}产品经理预览\.html/,
-    "AGENTS 缺少产品经理 HTML 预览交付合同",
+    /本地预览\.html[\s\S]{0,700}逐字节一致/,
+    "AGENTS 缺少本地预览「所见即所推」交付合同",
   ],
   [
     /角色回答或确认前[\s\S]*不得读取[\s\S]*不得选择、加载[\s\S]*不得创建、修改或写入/,
@@ -278,27 +284,38 @@ const agentChecks = [
 for (const [pattern, message] of agentChecks)
   if (!pattern.test(agents)) report(message);
 
-const previewSource = readText("assets/product-manager-preview.html");
+const previewSource = readText(
+  "skills/application-extension-template/assets/local-preview-template.html",
+);
 const previewChecks = [
-  [/^<!doctype html>/i, "产品经理 HTML 预览缺少 <!doctype html>"],
-  [/<style>[\s\S]+<\/style>/i, "产品经理 HTML 预览缺少内联样式"],
-  [/<script>[\s\S]+<\/script>/i, "产品经理 HTML 预览缺少内联脚本"],
-  [/window\.__PRODUCT_MANAGER_PREVIEW__/, "产品经理 HTML 预览缺少数据对象"],
-  [/data-module-id/, "产品经理 HTML 预览缺少 Module 交互"],
-  [/data-tab-id/, "产品经理 HTML 预览缺少 Tab 交互"],
-  [/data-preview-action="detail"/, "产品经理 HTML 预览缺少详情示意"],
-  [/data-preview-action="form"/, "产品经理 HTML 预览缺少新建示意"],
+  [/^<!doctype html>/i, "本地预览模板缺少 <!doctype html>"],
+  [/window\.__APP_PAYLOAD__\s*=\s*null;/, "本地预览模板缺少 payload 注入占位"],
+  [
+    /presets:\s*\[\['env',\s*\{\s*modules:\s*'commonjs'\s*\}\],\s*\['react',\s*\{\s*runtime:\s*'classic'\s*\}\]\]/,
+    "本地预览模板 Babel 预设与演示站 harness 不一致",
+  ],
+  [/embedded:\s*embedded/, "本地预览模板缺少 embedded prop 传递"],
+  [/src="\.\/preview-runtime\/react\.js"/, "本地预览模板缺少本地 react 运行时"],
+  [
+    /src="\.\/preview-runtime\/babel\.min\.js"/,
+    "本地预览模板缺少本地 babel 运行时",
+  ],
+  [/嵌入模式/, "本地预览模板缺少嵌入模式切换"],
+  [/独立模式/, "本地预览模板缺少独立模式切换"],
+  [/待确认项/, "本地预览模板缺少待确认项展示"],
 ];
 for (const [pattern, message] of previewChecks)
   if (!pattern.test(previewSource)) report(message);
 
 const forbiddenPreviewPatterns = [
-  [/type\s*=\s*["']module["']/i, "产品经理 HTML 预览不得使用 module script"],
-  [/\bfetch\s*\(/, "产品经理 HTML 预览不得使用 fetch"],
-  [/\/src\//, "产品经理 HTML 预览不得依赖 /src/"],
-  [/https?:\/\//i, "产品经理 HTML 预览不得引用外部资源"],
-  [/<script\b[^>]*\bsrc\s*=/i, "产品经理 HTML 预览不得使用外链 script"],
-  [/<link\b[^>]*\bhref\s*=/i, "产品经理 HTML 预览不得使用外链 stylesheet"],
+  [/type\s*=\s*["']module["']/i, "本地预览模板不得使用 module script"],
+  [/\bfetch\s*\(/, "本地预览模板不得使用 fetch"],
+  [/https?:\/\//i, "本地预览模板不得引用外部资源"],
+  [
+    /<script\b[^>]*\bsrc\s*=\s*["'](?!\.\/preview-runtime\/)/i,
+    "本地预览模板 script 只能引用 ./preview-runtime/",
+  ],
+  [/<link\b[^>]*\bhref\s*=/i, "本地预览模板不得使用外链 stylesheet"],
 ];
 for (const [pattern, message] of forbiddenPreviewPatterns)
   if (pattern.test(previewSource)) report(message);

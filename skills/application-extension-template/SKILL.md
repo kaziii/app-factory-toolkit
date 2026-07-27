@@ -37,29 +37,41 @@ When a business document omits a field, retain the template's structural behavio
 4. Replace only business data and target-specific callbacks first: app identity, module/tab data, `pagesByTab` page objects, global-panel data, metrics, filters, structured columns, rows, groups, board columns, form fields, and detail schema. Preserve the component tree and its shared state ownership.
 5. Implement source-specific pages below `BasicApplicationShell` only after the shell works. Reuse the page frame/list/overlay primitives in the template rather than adding a second top navigation, generic dashboard cards, or raw unstyled dialogs.
 6. Verify the default list state and every requested alternate state at the controlled `1920 x 1080` CSS viewport. Use the matching image under `assets/reference-states/` only as a structure and named-state reference unless its source version, CSS viewport, DPR, route, fixture, state, browser, and font metadata all match the test; only then may it serve as a pixel-comparison baseline. Verify app switcher, account popover, module switcher, list mode, detail drawer, form dialog, global panel, and settings drawer when the target exposes them.
-7. Run `node scripts/verify-basic-shell-assets.mjs` in this skill before copying. For a new standalone target, use pnpm only: run `pnpm install --frozen-lockfile`, then `pnpm check`; never substitute npm or yarn and never accept `file://` opening of `index.html` as a runtime check. `pnpm check` builds the target, starts a short-lived preview, checks the home route, `/basic-shell/manifest.json`, and every resource declared by that manifest, then shuts the preview down. Run the target project's browser check at the controlled `1920 x 1080` CSS viewport. Confirm `public/basic-shell/manifest.json` and every bundled `/basic-shell/...` URL resolve before handoff.
+7. Verify with the default assumption that the user's machine has NO Node.js and NO pnpm. The mandatory, always-available check is agent-performed static verification plus the `本地预览.html` render check described in the local-preview section below: the agent reads the generated files and confirms the payload JSON parses, the entry exists, every relative import resolves inside the file set, and the CSS is included. Only when Node is actually present on the machine may the optional enhanced path run: `node scripts/verify-basic-shell-assets.mjs` in this skill, then `pnpm install --frozen-lockfile` and `pnpm check` in the target (never substitute npm or yarn). Never make Node/pnpm a precondition for generation, preview, or publish, and never ask the user to install them.
 
 ## Non-Negotiable Template Rules
 
 - Keep the shell stack at `52 px + 72 px + 48 px = 172 px`.
 - Keep the top brand/user bar, application identity/action row, and module/tab row mounted once and outside page content. Exception: when the app is embedded into a host platform (e.g. published to the Moheng demo environment), pass `embedded` to `BasicApplicationShell` — it hides only the top brand/user bar because the host platform owns that layer; the remaining two rows stay mandatory.
+- `src/App.jsx` must accept an `embedded` prop and forward it to `BasicApplicationShell` (the Moheng harness renders `<App embedded={true} />`; `本地预览.html` toggles it). Omitting the passthrough makes the app render a duplicate platform bar inside the host.
+- For demo-environment targets, do not depend on `/basic-shell/...` asset URLs: the Moheng harness renders only js/jsx/css from the pushed files, so those images 404 online (and, deliberately, in `本地预览.html` too). Use `lucide-react` icons and inline SVG / data URIs for required graphics; any remaining `<img>` must tolerate load failure.
+- When the generated app is confirmed only for the demo environment, trim the app-switcher `applications` list to the target application itself (or mark siblings non-selectable): selecting a fictional sibling app swaps the identity row while the modules stay, which reads as a data mismatch.
 - Keep app/module/tab state route-aware or state-aware; selecting them must change actual selection and close stale menus/panels.
 - Keep resources in `public/basic-shell/` and call them through their documented absolute `/basic-shell/...` URLs. Do not link back to another repository or temporary file.
 - Keep the `BasicApplicationShell` component boundary. Page features may compose it but may not duplicate its chrome or override it through broad global selectors.
 - Use the supplied CSS rather than replacing operational surfaces with generic rounded-card UI.
 - Preserve keyboard activation, visible focus styling, Escape close, and outside-close behavior already represented by the template. Add trigger-focus restoration when extending the stock overlays with asynchronous or destructive flows.
 
-## Product-manager HTML confirmation preview
+## Local preview（本地预览，所见即所推，零 Node 依赖）
 
-When this skill is invoked through the portable `平台业务应用生成工具`, the tool entry has confirmed the user role as 产品经理, and the safe `application-id` plus business structure are available, also generate `outputs/<application-id>/产品经理预览.html`. Copy the tool-root `assets/product-manager-preview.html`, then replace only `window.__PRODUCT_MANAGER_PREVIEW__` with confirmed structure data and explicit `待确认` values. Run `node scripts/verify-product-manager-preview.mjs outputs/<application-id>/产品经理预览.html` from the tool root before handoff.
+The ONLY local preview artifact is `outputs/<application-id>/本地预览.html`. It renders the real application — the exact same files that will be pushed — with the exact same in-browser pipeline the Moheng demo site uses (identical Babel presets, identical module loader, identical react/lucide runtime bundles). What the user sees locally IS what they will see after publish; producing a different artifact for confirmation than for publishing is forbidden.
+
+Always generate it after the application files are written, for every role, with no Node/pnpm involved:
+
+1. Assemble the push payload `files` object first (all `src/**` .jsx/.js/.css files, exactly as PUSH.md §4 will send them) and keep it as the single source of truth for this iteration.
+2. Copy this skill's `assets/preview-runtime/` (react.js, lucide-react.cjs.js, babel.min.js) to `outputs/<application-id>/preview-runtime/`.
+3. Copy `assets/local-preview-template.html` to `outputs/<application-id>/本地预览.html`, then replace the single line `window.__APP_PAYLOAD__ = null;` with `window.__APP_PAYLOAD__ = { appId, manifest, files, entry: "src/App.jsx", confirmItems };` where `files` is byte-identical to step 1 and `confirmItems` lists the open 待确认 items in business language.
+4. Agent-verify without Node: the injected JSON parses, `entry` exists in `files`, every relative import inside `files` resolves within `files`, at least one `.css` file is present, and the three `preview-runtime/` files match the skill assets byte-for-byte.
+
+Consistency red line: the `files` embedded in `本地预览.html` and the `files` later sent in `payload.json` must be byte-identical. Any change to the application after the preview was handed off invalidates the confirmation — rebuild `本地预览.html` and hand it off again before publishing.
+
+The preview opens by double-click over `file://` — no server, no install. Its top toolbar defaults to 嵌入模式 (identical to how the Moheng host renders the app, top platform bar hidden) and offers 独立模式 (standalone form with the platform user bar) plus the 待确认项 list. It performs no asset compensation: resources the demo site will not render (e.g. `/basic-shell/...` URLs) also do not render locally, by design.
 
 After generation succeeds, ALWAYS hand the preview back to the user as a clickable local link and wait for their confirmation — do not stop at "files written". The handoff message must contain:
 
-1. the absolute `file://` URL of `产品经理预览.html` (e.g. `file:///D:/.../产品经理预览.html`, URL-encode spaces and non-ASCII path segments) plus the plain absolute path, telling the user to double-click or paste it into a browser;
-2. one line explaining what to check (modules, tabs, pages, actions, 待确认 items);
+1. the absolute `file://` URL of `本地预览.html` (e.g. `file:///D:/.../本地预览.html`, URL-encode spaces and non-ASCII path segments) plus the plain absolute path, telling the user to double-click or paste it into a browser;
+2. one line explaining what to check (modules, tabs, pages, actions, 待确认 items — this is the real app render, not a wireframe);
 3. the question "确认无误后回复「发布」即可推送到演示环境" — publishing must wait for this confirmation; never treat generation success itself as approval to publish.
-
-This directly openable `file://` preview is a product-confirmation supplement. It does not replace the standalone React/Vite application, `pnpm check`, the single Basic shell owner, or any Basic / Pro / Max routing rule. Do not create it for other roles, for an unconfirmed ID, or when the portable tool template/validator is unavailable.
 
 ## Template Assets
 
@@ -75,6 +87,8 @@ This directly openable `file://` preview is a product-confirmation supplement. I
 | `assets/react-basic-shell/public/basic-shell/` | Brand SVG, user avatar, and application logo resources referenced by the template. |
 | `assets/react-basic-shell/public/basic-shell/manifest.json` | Resource hashes, native dimensions and render rules. |
 | `assets/reference-states/` | Ten reference screenshots for visual comparison only; never import them into the application UI. |
+| `assets/local-preview-template.html` | 所见即所推 local preview shell: same in-browser compile/load pipeline as the Moheng demo harness, plus 嵌入/独立 mode toggle and 待确认项 list. Inject the push payload into `window.__APP_PAYLOAD__`. |
+| `assets/preview-runtime/react.js`, `lucide-react.cjs.js`, `babel.min.js` | Vendor runtime bundles identical to the demo site's; copied beside `本地预览.html` so it opens over `file://` with zero installs. |
 
 ## Generation limits (per machine, read locally, stated up front)
 
@@ -100,7 +114,7 @@ This skill owns the publish stage for the Moheng (陌衡企信) demo-environment
 
 Enter the publish stage only when BOTH of the following hold; otherwise do not push and never decide to publish on the user's behalf:
 
-1. the generated application directory passed local checks, and the user has received the local preview link (the `file://` handoff described in the preview section above, or `pnpm check` when Node is available);
+1. the generated application directory passed the agent-performed checks and the user has received the `本地预览.html` `file://` handoff described in the local-preview section above (`pnpm check` is an optional extra when Node happens to exist, never a requirement);
 2. the user explicitly asked to publish after seeing the preview ("推上去 / 发布 / 生成链接").
 
 Before assembling the payload, ALWAYS run the push pre-check in PUSH.md §3: list the apps already published under this gate code (`GET <演示站>/api/preview/apps`), decide with the user whether this push **updates an existing app** (reuse its server-side `id`, `mode: "update"`, version +1, same link) or **creates a new one** (fresh `appId`, `mode: "create"`), and say so explicitly in the handoff. When intent is ambiguous, ask — never let an id collision silently overwrite a previously published app.

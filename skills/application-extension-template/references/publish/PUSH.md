@@ -9,8 +9,8 @@
 
 ## 0. 前置条件（缺一即停）
 
-- `<应用目录>` 已生成且通过本地检查（`产品经理预览.html` 结构确认，
-  或有 Node 环境时 `pnpm check` 通过）；
+- `<应用目录>` 已生成且通过本地检查（使用者已收到并确认 `本地预览.html` —— 它渲染的
+  就是本次要推送的 `files`；有 Node 环境时 `pnpm check` 仅为可选增强）；
 - 使用者明确说了要发布（"推上去 / 发布 / 生成链接"），不得自行进入本阶段。
 
 不需要额外确认使用者角色——明确要求发布本身就是授权；也**不要向使用者索要演示站地址**，
@@ -86,9 +86,11 @@ curl.exe -sS "<演示站>/api/preview/apps" -H "x-gate-code: <12位验证码>"
 
 规则：
 
-- `files` 收录 `src/**` 全部源文件（.jsx/.js/.css）；`public/basic-shell/` 图片资源暂不上传
-  （演示环境渲染端用占位图；图标走 lucide）；引用了 `/basic-shell/...` 图片的 `<img>` 需能
-  容忍加载失败（模板已满足）；
+- `files` 收录 `src/**` 全部源文件（.jsx/.js/.css），且必须与 `本地预览.html` 注入的
+  `window.__APP_PAYLOAD__.files` **逐字节一致**（所见即所推红线：预览确认的就是这一份；
+  若组包时发现不一致，回去重建预览并重新确认，禁止直接推送）；`public/basic-shell/` 图片
+  资源不上传 —— 演示站渲染端只处理 js/jsx/css，图标走 lucide，必要图形用内联 SVG/data URI；
+  引用了 `/basic-shell/...` 图片的 `<img>` 需能容忍加载失败（模板已满足）；
 - 入口 `src/App.jsx` 必须默认导出应用组件，并把收到的 `embedded` prop 透传给
   `BasicApplicationShell`（嵌入平台时隐藏顶部平台用户栏，见模板 embedded 说明）；
 - `expectedApis` 来自生成阶段对本目录 `api-catalog.json` 的比对结果：清单里没有的

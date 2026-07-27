@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>本地预览 · 所见即所推</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body { background: #f5f6f8; font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; }
+  .lp-banner { flex: none; height: 42px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #101828; color: #e5e7eb; font-size: 12px; }
+  .lp-banner strong { color: #fff; font-size: 13px; }
+  .lp-tag { padding: 1px 8px; border-radius: 999px; background: #1d4ed8; color: #fff; font-size: 11px; }
+  .lp-meta { color: #94a3b8; }
+  .lp-spacer { flex: 1; }
+  .lp-btn { border: 1px solid #334155; background: transparent; color: #cbd5e1; border-radius: 6px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
+  .lp-btn.is-active { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .lp-confirm { flex: none; max-height: 40vh; overflow: auto; background: #fffbeb; border-bottom: 1px solid #fde68a; padding: 10px 16px; font-size: 12px; color: #92400e; display: none; }
+  .lp-confirm ul { margin: 4px 0 0; padding-left: 18px; }
+  #root { flex: 1; min-height: 0; overflow: auto; }
+  .preview-fatal { padding: 24px; color: #b91c1c; font-size: 13px; white-space: pre-wrap; }
+</style>
+<script src="./preview-runtime/react.js"></script>
+<!-- lucide 由服务端同款 IIFE 包（挂 window.__lucide）；不得以 module script 方式加载。 -->
+<script src="./preview-runtime/lucide-react.cjs.js"></script>
+<script src="./preview-runtime/babel.min.js"></script>
+</head>
+<body>
+<div class="lp-banner">
+  <strong id="lp-label">本地预览</strong>
+  <span class="lp-tag">所见即所推</span>
+  <span class="lp-meta" id="lp-meta"></span>
+  <span class="lp-spacer"></span>
+  <button class="lp-btn is-active" id="lp-mode-embedded" type="button">嵌入模式（同线上）</button>
+  <button class="lp-btn" id="lp-mode-standalone" type="button">独立模式</button>
+  <button class="lp-btn" id="lp-confirm-toggle" type="button">待确认项</button>
+</div>
+<div class="lp-confirm" id="lp-confirm"></div>
+<div id="root"></div>
+<script>
+// 注入点：生成阶段用与推送 payload 完全一致的对象替换 null。
+// 形如 { appId, manifest: { label, desc, ... }, files: { "src/App.jsx": "..." }, entry: "src/App.jsx", confirmItems: ["..."] }
+// 红线：files 必须与 PUSH.md 推送的 payload.files 逐字节一致 —— 预览的意义就是「所见即所推」。
+window.__APP_PAYLOAD__ = null;
+</script>
+<script>
+(function () {
+  'use strict';
+  // 以下编译与加载逻辑复刻陌衡企信演示站 __preview-harness.html，保持行为一致：
+  // 同一 Babel 预设、同一自研 require、同一外部依赖映射。改动仅限：无 iframe 桥、
+  // 增加顶部预览工具条、嵌入/独立模式切换。
+  function fail(phase, err, file) {
+    var root = document.getElementById('root');
+    root.innerHTML = '';
+    var pre = document.createElement('pre');
+    pre.className = 'preview-fatal';
+    pre.textContent = '演示应用加载失败（' + phase + (file ? ' · ' + file : '') + '）\n' + err;
+    root.appendChild(pre);
+  }
+
+  var EXTERNALS = {
+    react: window.React,
+    'react-dom': window.ReactDOM,
+    'react-dom/client': window.ReactDOM,
+    'lucide-react': window.__lucide || {},
+  };
+
+  var reactRoot = null;
+
+  function run(files, entry, embedded) {
+    try {
+      Object.keys(files).forEach(function (path) {
+        if (path.slice(-4) === '.css' && !document.querySelector('style[data-file="' + path + '"]')) {
+          var style = document.createElement('style');
+          style.setAttribute('data-file', path);
+          style.textContent = files[path];
+          document.head.appendChild(style);
+        }
+      });
+
+      var factories = {};
+      Object.keys(files).forEach(function (path) {
+        if (!/\.(js|jsx)$/.test(path)) return;
+        var compiled;
+        try {
+          compiled = Babel.transform(files[path], {
+            filename: path,
+            presets: [['env', { modules: 'commonjs' }], ['react', { runtime: 'classic' }]],
+          }).code;
+        } catch (err) { throw Object.assign(err, { __file: path, __phase: 'compile' }); }
+        factories[path] = new Function('require', 'module', 'exports', 'React', compiled);
+      });
+
+      var cache = {};
+      function normalize(from, spec) {
+        if (spec[0] !== '.') return spec;
+        var base = from.split('/'); base.pop();
+        var parts = spec.split('/');
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i] === '.' || parts[i] === '') continue;
+          if (parts[i] === '..') base.pop(); else base.push(parts[i]);
+        }
+        return base.join('/');
+      }
+      function resolveFile(path) {
+        var candidates = [path, path + '.js', path + '.jsx', path + '/index.js', path + '/index.jsx'];
+        for (var i = 0; i < candidates.length; i++) if (factories[candidates[i]]) return candidates[i];
+        return null;
+      }
+      function requireFrom(from) {
+        return function (spec) {
+          if (spec[0] !== '.') {
+            if (spec in EXTERNALS) return EXTERNALS[spec];
+            if (/\.css$/.test(spec)) return {};
+            throw new Error('外部依赖不可用: ' + spec + '（演示应用只允许 react / lucide-react）');
+          }
+          var normalized = normalize(from, spec);
+          if (/\.css$/.test(normalized)) return {};
+          var resolved = resolveFile(normalized);
+          if (!resolved) throw new Error('模块未找到: ' + spec + '（自 ' + from + '）');
+          if (cache[resolved]) return cache[resolved].exports;
+          var mod = { exports: {} };
+          cache[resolved] = mod;
+          factories[resolved](requireFrom(resolved), mod, mod.exports, window.React);
+          return mod.exports;
+        };
+      }
+
+      var entryExports = requireFrom('src/entry')('./' + entry.replace(/^src\//, ''));
+      var App = entryExports && (entryExports.default || entryExports.component || entryExports.App);
+      if (App && App.component) App = App.component;
+      if (typeof App !== 'function') throw new Error('入口 ' + entry + ' 未默认导出组件');
+
+      var React = window.React;
+      function Boundary(props) { React.Component.call(this, props); this.state = { err: null }; }
+      Boundary.prototype = Object.create(React.Component.prototype);
+      Boundary.prototype.constructor = Boundary;
+      Boundary.getDerivedStateFromError = function (err) { return { err: err }; };
+      Boundary.prototype.componentDidCatch = function () {};
+      Boundary.prototype.render = function () {
+        if (this.state.err) {
+          return React.createElement('pre', { className: 'preview-fatal' },
+            '演示应用渲染异常\n' + String((this.state.err && this.state.err.message) || this.state.err));
+        }
+        return this.props.children;
+      };
+
+      var rootEl = document.getElementById('root');
+      if (reactRoot) { reactRoot.unmount(); }
+      reactRoot = window.ReactDOM.createRoot(rootEl);
+      reactRoot.render(React.createElement(Boundary, { key: embedded ? 'e' : 's' },
+        React.createElement(App, { embedded: embedded })));
+    } catch (err) {
+      fail(err.__phase || 'runtime', err, err.__file);
+    }
+  }
+
+  var payload = window.__APP_PAYLOAD__;
+  if (!payload || !payload.files) {
+    fail('payload', new Error('window.__APP_PAYLOAD__ 未注入：请按 SKILL.md 用推送 payload 替换占位 null'));
+    return;
+  }
+
+  var label = (payload.manifest && payload.manifest.label) || payload.appId || '未命名应用';
+  document.title = label + ' · 本地预览';
+  document.getElementById('lp-label').textContent = label;
+  var fileCount = Object.keys(payload.files).length;
+  var bytes = 0;
+  Object.keys(payload.files).forEach(function (k) { bytes += payload.files[k].length; });
+  document.getElementById('lp-meta').textContent =
+    fileCount + ' 个文件 · 约 ' + Math.round(bytes / 1024) + ' KB · 与推送 payload 一致 · 数据为演示数据';
+
+  var confirmEl = document.getElementById('lp-confirm');
+  var items = payload.confirmItems || [];
+  if (items.length) {
+    confirmEl.innerHTML = '<strong>待确认项（' + items.length + '）</strong><ul>' +
+      items.map(function (t) { return '<li>' + String(t).replace(/</g, '&lt;') + '</li>'; }).join('') + '</ul>';
+  } else {
+    confirmEl.textContent = '无待确认项。';
+  }
+  document.getElementById('lp-confirm-toggle').addEventListener('click', function () {
+    confirmEl.style.display = confirmEl.style.display === 'block' ? 'none' : 'block';
+  });
+
+  var entry = payload.entry || 'src/App.jsx';
+  var btnEmbedded = document.getElementById('lp-mode-embedded');
+  var btnStandalone = document.getElementById('lp-mode-standalone');
+  function setMode(embedded) {
+    btnEmbedded.className = 'lp-btn' + (embedded ? ' is-active' : '');
+    btnStandalone.className = 'lp-btn' + (embedded ? '' : ' is-active');
+    run(payload.files, entry, embedded);
+  }
+  btnEmbedded.addEventListener('click', function () { setMode(true); });
+  btnStandalone.addEventListener('click', function () { setMode(false); });
+
+  // 默认嵌入模式：与陌衡企信线上渲染一致（宿主拥有顶部用户栏）。
+  setMode(true);
+})();
+</script>
+</body>
+</html>
