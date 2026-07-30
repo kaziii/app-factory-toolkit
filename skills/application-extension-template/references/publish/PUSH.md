@@ -55,10 +55,16 @@
 curl.exe -sS "<演示站>/api/preview/apps" -H "x-gate-code: <12位验证码>"
 ```
 
-返回 `{ "issuedTo": "...", "apps": [{ "id", "label", "latestVersion", "status", "updatedAt", "expiresAt" }] }`。据此确定本次意图与 `mode`：
+返回 `{ "issuedTo": "...", "apps": [{ "id", "label", "latestVersion", "status", "updatedAt", "expiresAt" }] }`。
+`status` 取值：`active`（在线）/ `pending`（待管理员放行）/ `expired`（已过期）/ `removed`（已被管理员下架）。
+**清单里的每个 `id` 都仍被占用**（包括 `expired` 与 `removed`），换句话说 `create` 撞上其中任何一个都会 409。
+
+据此确定本次意图与 `mode`：
 
 - 使用者要**更新**某个已有应用（"改一下上次那个 / 更新 XX"）：payload 的 `appId` 必须取清单中该应用的 `id`（即使本地目录名不同也以清单为准），`mode` 填 `"update"`；推送前告知使用者「将把“<label>”从 v<N> 更新到 v<N+1>，链接与入口卡片不变」。
 - 使用者要**新增**应用：`appId` 不得与清单中任何 `id` 相同（重名时换一个 application-id），`mode` 填 `"create"`；告知将新上架一个应用（占用一个在线应用配额名额）。
+- 清单里目标应用是 **`removed`（已被管理员下架）**：仍按 `mode: "update"` 推送即可 —— 推送会让它重新上架，链接与入口卡片不变，版本 +1，有效期重新计算。推送前如实告知使用者「“<label>”此前已被平台管理员下架，本次推送会重新上架它（v<N+1>）」；使用者若不知情为何被下架，建议其先与管理员确认，不要反复重推。**不要为了避开它另起一个 application-id** —— 那会白占一个配额名额并留下一个没人用的应用。
+- 清单里目标应用是 **`expired`（已过期）**：同样按 `mode: "update"` 推送，有效期按当前档位重新计算。
 - **意图不明**（例如清单里已有同名/同 id 应用，但使用者只说了"发布"）：停下来问一句——「演示环境已有“<label>”（当前 v<N>）。本次是**更新它**，还是**作为新应用上架**？」按回答定 `mode`，不得替使用者猜。
 - 清单接口 401/429/503 按 §7 失败表处置；网络异常时不得盲推，如实说明后停止。
 
@@ -140,19 +146,22 @@ macOS / Linux 用 curl 同参数。`<演示站>` 取 §1 的内置地址（本�
 - `mode: "update"` 时版本号自动 +1，入口卡片与链接始终展示最新版本；`mode: "create"` 时 `version` 恒为 1；
 - `status` 为 `pending` 时提示：本机需人工审核，管理员放行后上架。
 
-## 5.1 回写生成上限（服务端下发，本地缓存）
+## 5.1 回写生成配置（服务端下发，本地缓存作离线兜底）
 
-响应里的 `limits` 是服务端针对「本验证码 + 本机 deviceId」配置的生成上限。收到后原样合并写入
-`~/.moheng-appfactory/config` 的 `limits` 字段（保留 `code`/`deviceId`/`server`），供下次生成时本地读取：
+响应里的 `limits` 是服务端针对「本验证码 + 本机 deviceId」配置的生成配置投影
+（`maxFiles` / `realData` / `generationBrief` 生成指令等）。收到后原样合并写入
+`~/.moheng-appfactory/config` 的 `limits` 字段（保留 `code`/`deviceId`/`server`）。
+生成阶段的主路径是生成前实时拉取 `GET <演示站>/api/preview/policy`（见 SKILL.md
+「Generation policy」节），这份缓存仅作**演示站不可达时的生成兜底**：
 
 ```json
-{ "code": "...", "deviceId": "dev_...", "limits": { "maxFiles": 40, "realData": false, "updatedAt": "2026-07-27" } }
+{ "code": "...", "deviceId": "dev_...", "limits": { "maxFiles": 40, "realData": false, "generationBrief": "", "updatedAt": "2026-07-27" } }
 ```
 
 规则：
 
 - **只写不改**：原样落盘，禁止调高任何数值，也禁止在没收到 `limits` 时自己编一个；
-- 响应没有 `limits` 字段时保留上一次的缓存值，缓存也没有就按默认档（见 SKILL.md「Generation limits」节）；
+- 响应没有 `limits` 字段时保留上一次的缓存值，缓存也没有就按默认档（见 SKILL.md「Generation policy」节）；
 - 在 §6 交付里用一句话告知使用者本次下发的上限（例如「本机生成上限已更新为 40 个源文件」），
   使用者随时可以打开该配置文件自行查看；**不得隐瞒或含糊带过**。
 
@@ -180,7 +189,7 @@ macOS / Linux 用 curl 同参数。`<演示站>` 取 §1 的内置地址（本�
 | 400 `too many files for generation scope` | 超出服务端文件数上限 | 精简文件，或请管理员为该验证码放宽上限 |
 | 401 | 验证码错误或已吊销 | 停止，请产品经理联系管理员 |
 | 404 `app not found for update` | 想更新但 appId 在演示环境不存在 | 回 §3 清单核对正确 id，或确认改为新增 |
-| 409 `appId already exists` | 想新增但 id 撞了自己名下已有应用 | 换 application-id，或与使用者确认其实是更新 |
+| 409 `appId already exists` | 想新增但 id 撞了自己名下已有应用（含已过期 / 已下架的，它们仍占用 id） | 回 §3 清单核对该 id 的 `status`：确实是同一个应用就改 `mode: "update"`（顺带把过期/下架的重新上架），否则换 application-id |
 | 409 `appId owned by another code` | 应用 id 被他人占用 | 换一个 application-id |
 | 413 | 载荷超体积上限 | 精简源码/演示数据 |
 | 429 | 配额满或限速 | 提示配额（同码在线应用数上限）或稍后再试 |

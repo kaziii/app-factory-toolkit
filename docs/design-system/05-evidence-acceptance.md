@@ -99,7 +99,7 @@
 | Exclusions | hover、focus、disabled、loading、empty、error、permission 和 Overlay |
 | Evidence status | `inferred`；结构由产品规则与代码确认，图片视觉参数仍需受控截图 |
 
-Basic 其他状态图目前由 `application-extension-template` skill 的 `skills/application-extension-template/assets/reference-states/` 维护，包括 table、sidebar、card、drawer、dialog、global panel、settings、application switcher、account 和 module switcher。P6 同步时记录 skill 规范版本；未复制进仓库的资源继续作为本地执行证据，不作为跨环境唯一链接。
+Basic 其他状态图（table、sidebar、card、drawer、dialog、global panel、settings、application switcher、account、module switcher）不再随 skill 发行：上传源在本仓库 `server-assets/reference-states/`，托管于腾讯云 COS，生成端在生成前按机器配置从演示环境 `GET /api/preview/assets` 拉取（见 template SKILL.md「Generation policy」节）。P6 同步时记录 skill 规范版本；未复制进仓库的资源继续作为本地执行证据，不作为跨环境唯一链接。
 
 Pro 的完整截图集、1920 × 1080 受控 Basic 截图和 Max 展开/折叠状态图尚未形成正式基线，相关视觉细节保持 `inferred` 或 `gap`。这不影响已确认的 Pro 结构等同 Basic、Max 只新增平台左栏的产品规则。
 

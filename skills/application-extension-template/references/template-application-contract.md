@@ -6,7 +6,7 @@ Use this reference when applying the code-first Basic shell template to a fresh 
 
 The controlled viewport is `1920 x 1080` CSS pixels. Mobile, compact-density, and large-screen validation are deferred.
 
-The screenshots under `assets/reference-states/` are references for required structure and named states only. Treat a screenshot as a pixel-comparison baseline only when its source version, CSS viewport, DPR, route, fixture, state, browser, and font metadata are all registered. If any metadata is missing, do not run or claim pixel-baseline acceptance from that image.
+Reference-state screenshots are fetched per machine from the demo platform before generating (see SKILL.md「Generation policy」); they are references for required structure and named states only. Treat a screenshot as a pixel-comparison baseline only when its source version, CSS viewport, DPR, route, fixture, state, browser, and font metadata are all registered. If any metadata is missing, do not run or claim pixel-baseline acceptance from that image. When no screenshot was downloaded for a state, §4–§6 of this contract are the acceptance reference for it.
 
 ## 1. Copy contract
 
@@ -113,15 +113,8 @@ Do not change these unless a new approved visual system replaces Basic:
 
 ## 7. Visual comparison resources
 
-Read only the image matching the state being implemented. The ten PNGs in `assets/reference-states/` are visual evidence, not runtime images:
+Reference-state screenshots are not bundled with this skill. They are downloaded per machine from the demo platform right before generating (SKILL.md「Generation policy」§3): each downloaded item carries a `desc` naming the shell state it depicts (e.g. 列表页表格形态、卡片看板形态、行详情抽屉). They are visual evidence, not runtime images:
 
-- `basic-shell-list-table.png`
-- `basic-shell-sidebar-list.png`
-- `basic-shell-card-board.png`
-- `basic-shell-detail-drawer.png`
-- `basic-shell-form-dialog.png`
-- `basic-shell-global-action-panel.png`
-- `basic-shell-settings-drawer.png`
-- `basic-shell-application-switcher.png`
-- `basic-shell-account-popover.png`
-- `basic-shell-module-switcher.png`
+- read only the image matching the state being implemented;
+- the set of images differs per machine — whatever was not downloaded is implemented and verified from §4–§6 of this contract instead;
+- never copy these images into the application output or push payload, and never link their URLs.

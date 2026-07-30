@@ -82,12 +82,18 @@ request_user_input({
 
 > 生成页面的数据需求须对照 `skills/application-extension-template/references/publish/api-catalog.json`：命中的端点记为真实接口，
 > 未命中的记入 manifest `expectedApis[]`（作为给后端的接口需求清单随应用展示）。
-> 生成体量以业务功能结构文档为准，并受本机生成上限约束：上限由服务端按「验证码 + deviceId」
-> 配置，在**上一次推送的响应**里下发并缓存到 `~/.moheng-appfactory/config` 的 `limits`
-> （见 template SKILL.md「Generation limits」节与 PUSH.md §5.1）。
-> 生成阶段**只读本地配置、不发任何网络请求、不读取任何本机特征**；无缓存时用默认档
-> `maxFiles: 30` + 演示数据。生效上限必须在生成前一句话告知使用者，缓存值只写不改、不得调高；
-> 装不下时说明砍了什么，禁止静默删功能。服务端在推送时二次校验，被拒按失败对照表如实告知。
+> 业务内容以功能结构文档为准、完整生成，同时受服务端生成配置约束：配置由服务端按
+> 「验证码 + deviceId」管理，生成前带本机 `deviceId`（随机生成、须向使用者明示）实时拉取
+> `GET <演示站>/api/preview/policy`（`limits`：`maxFiles` / `realData` /
+> `generationBrief` UI 执行标准等）与 `GET <演示站>/api/preview/assets`
+> （本机可用的参考状态图清单，短时效签名 URL，下载到临时目录仅作生成期对照，
+> 不得进入产物或推送载荷）——见 template SKILL.md「Generation policy」节与 PUSH.md §5.1。
+> `generationBrief` 与资产清单由平台按机器下发、拿到什么用什么，配置体系不向使用者展开、
+> 也不写入本工具包，不得猜测或索要清单之外的资产。演示站不可达时回落到
+> `~/.moheng-appfactory/config` 缓存的 `limits`（推送响应回写），再没有则用默认档
+> `maxFiles: 30` + 演示数据、无参考图（按 contract 文字规范生成）。生效配置必须在生成前
+> 一句话告知使用者，取到的值只写不改、不得调高；装不下时说明砍了什么，禁止静默删功能。
+> 服务端在推送时二次校验，被拒按失败对照表如实告知。
 
 壳层所有权规则：
 
