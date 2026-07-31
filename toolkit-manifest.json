@@ -6,7 +6,7 @@
   "baselineViewport": "1920x1080",
   "mobileScope": "deferred",
   "entrypoint": "AGENTS.md",
-  "builtAt": "2026-07-31T08:09:56.890Z",
+  "builtAt": "2026-07-31T08:14:31.492Z",
   "skills": [
     {
       "name": "application-extension-template",
@@ -21,7 +21,7 @@
     "docs/design-system/02-shell-navigation.md": "3d8eb6398dbe4a104addba2816fa97183571d71765e13b772a3e8635762b6b46",
     "docs/design-system/03-application-page-patterns.md": "949a187a8019fd5b738aa250304b9a4e833966d37ee306db4e15c6b5dd278b69",
     "docs/design-system/04-states-interactions.md": "04590494f2774b8131d1c21beaf45fed55c548c0de3a091c80761a9505d7615d",
-    "docs/design-system/05-evidence-acceptance.md": "7e2f4f67b313f653c4ce4b3284dc0c9c7acdba5e2239652498af501e704c3f90",
+    "docs/design-system/05-evidence-acceptance.md": "d17d5f485b2e0459017bc7a8bf0136ceed3c87da4a5dab2fc1ec58a703e0a8b6",
     "docs/design-system/assets/basic-business-application-frame.png": "1f644d773c2d69bdbdb9757fe1c419cbc45cdfc5e3382b9452f6737434ef093c",
     "docs/design-system/assets/max-platform-boundary.png": "f9d4ee644c8c3e30c238b442f7f338ebce807ea9944e23f010db34064199a9fa",
     "docs/platform-ui-spec.md": "67873abccc12ca718a5f54cdbcbed68f615e709c5e836a2d32f7a27cee727e9e",
