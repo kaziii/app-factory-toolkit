@@ -1,4 +1,7 @@
 interface:
-  display_name: "Application Extension Template"
-  short_description: "Generate standalone Basic app shells"
-  default_prompt: "Use $application-extension-template to generate a standalone Basic business application from my functional structure document."
+  display_name: "应用生成模板（Basic 独立应用）"
+  short_description: "从业务功能结构文档生成独立 Basic 运营应用"
+  default_prompt: "使用 $application-extension-template 根据我的业务功能结构文档生成一个独立的 Basic 运营应用。"
+  icon_small: "./assets/icons/skill-icon-small.svg"
+  icon_large: "./assets/icons/skill-icon-large.svg"
+  brand_color: "#2652F1"

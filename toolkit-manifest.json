@@ -6,7 +6,7 @@
   "baselineViewport": "1920x1080",
   "mobileScope": "deferred",
   "entrypoint": "AGENTS.md",
-  "builtAt": "2026-07-31T08:14:31.492Z",
+  "builtAt": "2026-07-31T08:45:35.088Z",
   "skills": [
     {
       "name": "application-extension-template",
@@ -17,6 +17,8 @@
   "managedFiles": {
     "AGENTS.md": "c0f3d2cb716a818221b5f25d7963e754c93fd17926875794f1bd48d041bbc86a",
     "SKILL.md": "78c486afa6ed7771bf51b8e802aad5109aedc2ea381649d4676c233b37fd8edd",
+    "assets/icons/toolkit-icon-large.svg": "51ab6ea1f4b7458e730b5310b7ca513b7556fd672b0d5052f06bf0c12656a0db",
+    "assets/icons/toolkit-icon-small.svg": "69ad6586fc256c07f19ac0b65a7e0dc4e2ee4e091f812fa0acb491152a920134",
     "docs/design-system/01-foundations.md": "502500fd8a93905e637aa1fb4c3effab2bcecd343f65c04161229cf2a4f6a173",
     "docs/design-system/02-shell-navigation.md": "3d8eb6398dbe4a104addba2816fa97183571d71765e13b772a3e8635762b6b46",
     "docs/design-system/03-application-page-patterns.md": "949a187a8019fd5b738aa250304b9a4e833966d37ee306db4e15c6b5dd278b69",
@@ -31,7 +33,9 @@
     "scripts/doctor.mjs": "a36f85f913d7091eca8819cfbae1a58bb0bcfd2dbcee5e6c956d371ed1fe75bd",
     "scripts/rebuild-manifest.mjs": "155ca1d5c1882539fa6ded573cc75614b7da607fe34d539ae86d2e429e5c0955",
     "skills/application-extension-template/SKILL.md": "f59ca8916f8a6e6eff94ad1955f3c9dbcc4ac5a1bf8b04c6f45e22d7e3f76fec",
-    "skills/application-extension-template/agents/openai.yaml": "9239cb5f86d5c84c076db7f5a0407c8b06e493dbe9daf4fc213332744eba40e6",
+    "skills/application-extension-template/agents/openai.yaml": "174d597a0f7bf2a8533f635b930944d0ab36f66f830330f14fb1b187496f764d",
+    "skills/application-extension-template/assets/icons/skill-icon-large.svg": "51ab6ea1f4b7458e730b5310b7ca513b7556fd672b0d5052f06bf0c12656a0db",
+    "skills/application-extension-template/assets/icons/skill-icon-small.svg": "69ad6586fc256c07f19ac0b65a7e0dc4e2ee4e091f812fa0acb491152a920134",
     "skills/application-extension-template/assets/local-preview-template.html": "1867f0adc388d4b198c8880af5dee93711c4a66fea6622cb0784ddbd2753cf3e",
     "skills/application-extension-template/assets/preview-runtime/babel.min.js": "9a4b639c5c1e174ec4702ed5ba6cc897dd8dcbbb6faf59c3a4b817a896c8ae2f",
     "skills/application-extension-template/assets/preview-runtime/lucide-react.cjs.js": "71c11a74d5f1d357c0ccd3ee4d278346f1ee13c96a62794ff9b00e3f3765217a",

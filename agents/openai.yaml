@@ -1,0 +1,7 @@
+interface:
+  display_name: "应用工厂工具包"
+  short_description: "按平台 UI 规范生成独立 Basic 运营应用并发布到演示环境"
+  default_prompt: "使用 $app-factory-toolkit 根据我的业务功能结构文档生成一个独立的 Basic 运营应用。"
+  icon_small: "./assets/icons/toolkit-icon-small.svg"
+  icon_large: "./assets/icons/toolkit-icon-large.svg"
+  brand_color: "#2652F1"
