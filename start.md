@@ -1,16 +1,16 @@
 # 开始使用
 
-这个文件夹可以直接作为 Codex 工作区使用，无需把内置 skill 安装到电脑的全局目录。
+这个文件夹可以直接作为 AI 编程助手（Codex、Claude Code、WorkBuddy 等）的工作区使用，无需把内置 skill 安装到电脑的全局目录。
 
 ## 三步开始
 
 1. 产品经理优先从 `inputs/_templates/pm-structure-table.md`（产品经理应用结构表）复制一份，保存为 `inputs/<application-id>-结构.md`，先填写应用、Module、Tab、页面和动作；复杂应用再用 `application-requirement-template.md`（业务应用需求模板）补充字段、接口和异常细节。ID 只使用小写字母、数字和连字符，例如 `contract-management`。
-2. 在 Codex 中打开整个“平台业务应用生成工具”文件夹。
+2. 在 AI 编程助手中打开整个“平台业务应用生成工具”文件夹。
 3. 发送：`读取 AGENTS.md，使用 inputs/<application-id>-结构.md 开始。`
 
-Codex 的第一步会让你选择角色。出现 Codex 选择器时直接点击“产品经理”“设计师”“研发”或“工具维护者”；当前表面没有选择器时，回复对应编号或角色名称。确认后，它会直接使用内置的 `application-extension-template` skill 生成应用。
+助手的第一步会让你选择角色（在消息里直接自报角色如「我是产品经理」可跳过这一步）。出现选择器时直接点击“产品经理”“设计师”“研发”或“工具维护者”；当前环境没有选择器时，回复对应编号或角色名称。确认后，它会直接使用内置的 `application-extension-template` skill 生成应用。
 
-结构表适合快速确定业务骨架；`application-requirement-template.md` 适合在生成前或生成后补充字段、接口、状态和验收细节。两份文件可以同时提供，Codex 会把未确认内容保留为待确认，而不是自行编造。应用生成后，产物目录包含可直接双击打开的 `本地预览.html`：它渲染的就是将要发布的那一份应用源码（所见即所推），无需安装任何环境。
+结构表适合快速确定业务骨架；`application-requirement-template.md` 适合在生成前或生成后补充字段、接口、状态和验收细节。两份文件可以同时提供，助手会把未确认内容保留为待确认，而不是自行编造。应用生成后，产物目录包含可直接双击打开的 `本地预览.html`：它渲染的就是将要发布的那一份应用源码（所见即所推），无需安装任何环境。
 
 ## 产物位置
 

@@ -61,4 +61,4 @@
 }
 ```
 
-任一方式安装后需**重启客户端**才会加载。`application-extension-template` 内含 React 模板工程和多张参考截图，首次拉取需要一些时间，属正常现象。
+任一方式安装后需**重启客户端**才会加载。`application-extension-template` 内含完整 React 模板工程与预览运行时，首次拉取需要一些时间，属正常现象。参考状态图不随插件分发——由演示环境在生成前按本机配置实时下发（详见 skill 的 Generation policy 章节）。

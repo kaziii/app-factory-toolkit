@@ -5,7 +5,7 @@ description: Use when a user provides a business functional structure document a
 
 # App Factory Toolkit
 
-本文件是 WorkBuddy 技能规范要求的根目录入口。本技能包的完整工作流程如下：
+本文件是本技能包的根目录入口（满足 WorkBuddy 技能规范的 SKILL.md 要求，其他 agent 环境同样从这里进入）。本技能包的完整工作流程如下：
 
 1. 先读取 [AGENTS.md](AGENTS.md)，严格执行其中的角色门禁与状态机（role_unknown -> request_role_choice -> role_known -> inspect_request -> choose_one_skill -> execute -> verify [-> publish]）。
 2. 所有生成任务的唯一执行入口是 [skills/application-extension-template/SKILL.md](skills/application-extension-template/SKILL.md)：读取其全文，并按其中的引用规则继续读取必要资源。

@@ -10,9 +10,11 @@ Reference-state screenshots are fetched per machine from the demo platform befor
 
 ## 1. Copy contract
 
-For a new application, copy the complete `assets/react-basic-shell/` folder to an empty target directory, run `pnpm install --frozen-lockfile`, then `pnpm check`. The package, pnpm lockfile, runtime verifier, README, HTML, Vite config, React entry and stock mount are already present. `pnpm check` builds the app, starts a short-lived local preview, verifies the home page, `/basic-shell/manifest.json`, and every manifest-declared resource, then closes the preview. Replace `src/basicShellData.js` from the user's functional structure document; no host repository is needed.
+For a new application, copy the complete `assets/react-basic-shell/` folder to an empty target directory. The package, pnpm lockfile, runtime verifier, README, HTML, Vite config, React entry and stock mount are already present. Replace `src/basicShellData.js` from the user's functional structure document; no host repository is needed.
 
-Use pnpm only. Do not create or retain `package-lock.json`, do not use npm or yarn, and do not open `index.html` through `file://`: Vite must transform `/src/main.jsx` through `pnpm dev` or `pnpm preview`.
+The default verification path assumes the machine has NO Node.js and NO pnpm (see SKILL.md workflow step 7): the agent statically checks the generated files and hands off `本地预览.html`. Only when Node/pnpm happen to be available may the optional enhanced path run: `pnpm install --frozen-lockfile`, then `pnpm check` (builds the app, starts a short-lived local preview, verifies the home page, `/basic-shell/manifest.json`, and every manifest-declared resource, then closes the preview). Never require the user to install Node or pnpm.
+
+When the pnpm path is used, use pnpm only: do not create or retain `package-lock.json`, and do not use npm or yarn. Do not open the Vite project's `index.html` through `file://` — Vite must transform `/src/main.jsx` through `pnpm dev` or `pnpm preview`. (`本地预览.html` is the opposite by design: it is built to open over `file://` with zero installs.)
 
 For an existing React/Vite target, use the fragment mapping below.
 
@@ -82,7 +84,7 @@ The template calls these stable runtime URLs. They work after `public/basic-shel
 | `/basic-shell/application-contract-special.png` | 144 x 144 RGB app logo | `40 x 40 px` switcher |
 | `/basic-shell/application-major-decision.png` | 629 x 628 RGBA app logo | `40 x 40 px` switcher |
 
-`/basic-shell/manifest.json` records the SHA-256, native dimensions and required render rule for every asset. Before generation run `node scripts/verify-basic-shell-assets.mjs` from the skill root. After copying, verify the same manifest is present in the target and that all seven assets return HTTP 200.
+`/basic-shell/manifest.json` records the SHA-256, native dimensions and required render rule for every asset. The mandatory, Node-free check after copying: the agent reads the target's `public/basic-shell/manifest.json` and confirms every manifest-declared asset file exists in `public/basic-shell/`. Optional enhancements, only when Node happens to be available: run `node scripts/verify-basic-shell-assets.mjs` from the skill root before generation, and verify all seven assets return HTTP 200 from a running `pnpm dev` / `pnpm preview` server. Never make either a precondition.
 
 Use `object-fit: contain` for every app/brand image except user avatar, which is circular `cover`.
 

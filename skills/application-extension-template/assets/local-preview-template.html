@@ -39,6 +39,8 @@
 // 注入点：生成阶段用与推送 payload 完全一致的对象替换 null。
 // 形如 { appId, manifest: { label, desc, ... }, files: { "src/App.jsx": "..." }, entry: "src/App.jsx", confirmItems: ["..."] }
 // 红线：files 必须与 PUSH.md 推送的 payload.files 逐字节一致 —— 预览的意义就是「所见即所推」。
+// 序列化进本 HTML 时必须把字符串值里的 </ 转义为 <\/（防止 </script 截断 HTML）。
+// 该转义只发生在 HTML 序列化层，浏览器解析回来的字符串与原文件逐字节一致，不违反上述红线。
 window.__APP_PAYLOAD__ = null;
 </script>
 <script>

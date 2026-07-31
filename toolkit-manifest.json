@@ -6,7 +6,7 @@
   "baselineViewport": "1920x1080",
   "mobileScope": "deferred",
   "entrypoint": "AGENTS.md",
-  "builtAt": "2026-07-30T05:51:24.991Z",
+  "builtAt": "2026-07-31T08:09:56.890Z",
   "skills": [
     {
       "name": "application-extension-template",
@@ -15,8 +15,8 @@
     }
   ],
   "managedFiles": {
-    "AGENTS.md": "d0cef3fb3014bd8e18eb699ede0b09b34438f5482aa747c5d744703b4191bd03",
-    "SKILL.md": "59a57eb53f2e0d307c8ff3ff54c9ffac7ce3ae0ae885c6487e15bf3b3a1f4110",
+    "AGENTS.md": "c0f3d2cb716a818221b5f25d7963e754c93fd17926875794f1bd48d041bbc86a",
+    "SKILL.md": "78c486afa6ed7771bf51b8e802aad5109aedc2ea381649d4676c233b37fd8edd",
     "docs/design-system/01-foundations.md": "502500fd8a93905e637aa1fb4c3effab2bcecd343f65c04161229cf2a4f6a173",
     "docs/design-system/02-shell-navigation.md": "3d8eb6398dbe4a104addba2816fa97183571d71765e13b772a3e8635762b6b46",
     "docs/design-system/03-application-page-patterns.md": "949a187a8019fd5b738aa250304b9a4e833966d37ee306db4e15c6b5dd278b69",
@@ -30,9 +30,9 @@
     "outputs/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "scripts/doctor.mjs": "a36f85f913d7091eca8819cfbae1a58bb0bcfd2dbcee5e6c956d371ed1fe75bd",
     "scripts/rebuild-manifest.mjs": "155ca1d5c1882539fa6ded573cc75614b7da607fe34d539ae86d2e429e5c0955",
-    "skills/application-extension-template/SKILL.md": "43fab800b525087dc03640a8f16c82fd14ed7a0ac586ddff7b4e7bbfb54a004c",
+    "skills/application-extension-template/SKILL.md": "f59ca8916f8a6e6eff94ad1955f3c9dbcc4ac5a1bf8b04c6f45e22d7e3f76fec",
     "skills/application-extension-template/agents/openai.yaml": "9239cb5f86d5c84c076db7f5a0407c8b06e493dbe9daf4fc213332744eba40e6",
-    "skills/application-extension-template/assets/local-preview-template.html": "77f9a474c4e3a5416ca4370f94dd48347c1305b2540548e001c75666c416fbb1",
+    "skills/application-extension-template/assets/local-preview-template.html": "1867f0adc388d4b198c8880af5dee93711c4a66fea6622cb0784ddbd2753cf3e",
     "skills/application-extension-template/assets/preview-runtime/babel.min.js": "9a4b639c5c1e174ec4702ed5ba6cc897dd8dcbbb6faf59c3a4b817a896c8ae2f",
     "skills/application-extension-template/assets/preview-runtime/lucide-react.cjs.js": "71c11a74d5f1d357c0ccd3ee4d278346f1ee13c96a62794ff9b00e3f3765217a",
     "skills/application-extension-template/assets/preview-runtime/react.js": "7c9bfed7871dd5fdffc630a555920a8d173025081a7b9894cc753e0e17c1612b",
@@ -57,11 +57,11 @@
     "skills/application-extension-template/assets/react-basic-shell/src/main.jsx": "70d2c8af55b3f07ea408814d3801b2bc68bd619222e1b16c785588b45f9873db",
     "skills/application-extension-template/assets/react-basic-shell/src/services/dataSource.jsx": "0ef33efe13146dccb10222461e5d4303361c435eb7de48a77b98e90887f56187",
     "skills/application-extension-template/assets/react-basic-shell/vite.config.js": "74b09cebcffb3a70d459d02d886dbbe7d2aef0332fb1b1bd729c83d586b90e9a",
-    "skills/application-extension-template/references/publish/PUSH.md": "bef047cc3c050c7d8d9a40a32853582a9101032bc697c12e8fb16fca84ad8c18",
+    "skills/application-extension-template/references/publish/PUSH.md": "8eb24e4b742ac5360b5d56ae96c6135111ede355afddd2f1847e32c10020162c",
     "skills/application-extension-template/references/publish/api-catalog.json": "c247184aaa94199765b3f48d7ef1aa706acacae4ed04b5b5d8e504284df60d69",
-    "skills/application-extension-template/references/template-application-contract.md": "19702f92b567ec20999107cf1733946e3a2c34a8c89559f494eb3814246bb1c3",
+    "skills/application-extension-template/references/template-application-contract.md": "5462616414a8d7ad49030a3eec4970256bd3d1784211bfc2d2e55b83bd1eba5d",
     "skills/application-extension-template/scripts/verify-basic-shell-assets.mjs": "74ac0075184181937946136a012d4f59f0fa6aad7df07dec247ed8df7789be78",
     "skills/application-extension-template/scripts/verify-template-runtime.test.mjs": "16720c5447f2d5ff3f7cbff72d71f9f4b7cde2f90a4b9a1c70e85e9174a7847a",
-    "start.md": "e3c9ba5f8544ded45c7fb29ef44ff49c04cc231664f35028fac2cef50dd40176"
+    "start.md": "638395779b0aae0e2eaee43f68f5e9c63e635303cfde1e3db153a4a4fda724e0"
   }
 }

@@ -139,7 +139,7 @@ macOS / Linux 用 curl 同参数。`<演示站>` 取 §1 的内置地址（本�
 {
   "id": "...", "version": 2, "status": "active",
   "url": "/preview/<id>", "expiresAt": "...",
-  "limits": { "maxFiles": 40, "realData": false, "reviewRequired": false, "updatedAt": "2026-07-27" }
+  "limits": { "maxFiles": 40, "realData": false, "reviewRequired": false, "generationBrief": "", "updatedAt": "2026-07-27" }
 }
 ```
 
